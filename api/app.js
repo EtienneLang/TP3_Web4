@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 var hateoasLinker = require('express-hateoas-links');
+const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
@@ -19,16 +20,13 @@ app.use(express.json());
 app.use(hateoasLinker); 
 
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
-  );
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  next();
-});
-
+app.use(
+  cors({
+    origin: '*', // Allow all origins (you can replace '*' with your frontend's URL)
+    methods: 'OPTIONS, GET, POST, PUT, PATCH, DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+  })
+);
 
 
 // Utilisation des routes en tant que middleware
