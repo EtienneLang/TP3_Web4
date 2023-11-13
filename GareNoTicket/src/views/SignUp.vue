@@ -74,6 +74,7 @@
 </template>
 
 <script>
+import Cookies from 'js-cookie'
 export default {
     data() {
         return {
@@ -89,14 +90,22 @@ export default {
     },
     methods: {
         async register() {
+            console.log(
+                    'Registering with:',
+                    this.username,
+                    this.email,
+                    this.password,
+                    this.passwordConfirm,)
             //Si tout est bon, on envoie les données au serveur
             if (
-                !this.isUsernameValid ||
-                !this.isEmailValid ||
-                !this.isPasswordValid ||
-                !this.isPasswordMatch
+                this.isUsernameValid ||
+                this.isEmailValid ||
+                this.isPasswordValid ||
+                this.isPasswordMatch
             ) {
                 try {
+
+                
                     const response = await fetch('http://localhost:3000/auth/signup', {
                         method: 'POST',
                         headers: {
@@ -114,6 +123,8 @@ export default {
                         // Successful login, handle the response as needed
                         const data = await response.json()
                         console.log('Login successful:', data)
+                        Cookies.set('token', data.token, { expires: 1 })
+                        
                     } else {
                         // Unsuccessful login, handle the error
                         console.error('Login failed:', response.statusText)
