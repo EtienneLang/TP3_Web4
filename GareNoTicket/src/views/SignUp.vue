@@ -14,7 +14,11 @@
                                     class="form-control"
                                     id="username"
                                     required
+                                    @blur="isUsernameValid = username.trim() !== ''"
                                 />
+                                <div v-if="!isUsernameValid" class="text-danger">
+                                    Name is required.
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
@@ -24,7 +28,11 @@
                                     class="form-control"
                                     id="email"
                                     required
+                                    @blur="isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)"
                                 />
+                                <div v-if="!isEmailValid" class="text-danger">
+                                    Enter a valid email address.
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
@@ -34,21 +42,29 @@
                                     class="form-control"
                                     id="password"
                                     required
+                                    @blur="isPasswordValid = password.trim() !== ''"
                                 />
+                                <div v-if="!isPasswordValid" class="text-danger">
+                                    Password is required.
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <label for="passwordConfirm" class="form-label"
+                                <label for="confirmPassword" class="form-label"
                                     >Confirm Password</label
                                 >
                                 <input
-                                    v-model="passwordConfirm"
+                                    v-model="confirmPassword"
                                     type="password"
                                     class="form-control"
-                                    id="passwordConfirm"
+                                    id="confirmPassword"
                                     required
+                                    @blur="isPasswordMatch = password === confirmPassword"
                                 />
+                                <div v-if="!isPasswordMatch" class="text-danger">
+                                    Passwords do not match.
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Create Account</button>
+                            <button :disabled="!isPasswordMatch || !isPasswordValid || !isEmailValid || !isUsernameValid" type="submit" class="btn btn-primary">Create Account</button>
                         </form>
                     </div>
                 </div>
@@ -64,37 +80,55 @@ export default {
             username: '',
             email: '',
             password: '',
-            passwordConfirm: '',
+            confirmPassword: '',
+            isUsernameValid: true,
+            isEmailValid: true,
+            isPasswordValid: true,
+            isPasswordMatch: true,
         }
     },
     methods: {
         async register() {
-            try {
-                const response = await fetch('http://localhost:3000/auth/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: this.username,
-                        email: this.email,
-                        password: this.password,
-                        passwordConfirm : this.passwordConfirm,
-                    }),
-                })
+            //Si tout est bon, on envoie les données au serveur
+            if (
+                !this.isUsernameValid ||
+                !this.isEmailValid ||
+                !this.isPasswordValid ||
+                !this.isPasswordMatch
+            ) {
+                try {
+                    const response = await fetch('http://localhost:3000/auth/signup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: this.username,
+                            email: this.email,
+                            password: this.password,
+                            confirmPassword: this.confirmPassword,
+                        }),
+                    })
 
-                if (response.ok) {
-                    // Successful login, handle the response as needed
-                    const data = await response.json()
-                    console.log('Login successful:', data)
-                } else {
-                    // Unsuccessful login, handle the error
-                    console.error('Login failed:', response.statusText)
+                    if (response.ok) {
+                        // Successful login, handle the response as needed
+                        const data = await response.json()
+                        console.log('Login successful:', data)
+                    } else {
+                        // Unsuccessful login, handle the error
+                        console.error('Login failed:', response.statusText)
+                    }
+                } catch (error) {
+                    console.error('An error occurred during login:', error)
                 }
-            } catch (error) {
-                console.error('An error occurred during login:', error)
+                console.log(
+                    'Registering with:',
+                    this.username,
+                    this.email,
+                    this.password,
+                    this.passwordConfirm,
+                )
             }
-            console.log('Registering with:', this.name, this.email, this.password, this.passwordConfirm)
         },
     },
 }

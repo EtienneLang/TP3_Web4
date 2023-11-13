@@ -27,6 +27,7 @@ exports.signup = async (req, res, next) => {
       error.statusCode = 400;
       throw error;
     }
+    console.log(password, confirmPassword)
     // On regarde les mots de passe concordent
     if (password !== confirmPassword) {
       const error = new Error('Passwords do not match');
