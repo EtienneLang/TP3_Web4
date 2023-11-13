@@ -7,12 +7,12 @@
                     <div class="card-body">
                         <form @submit.prevent="register" method="post">
                             <div class="mb-3">
-                                <label for="name" class="form-label">Name</label>
+                                <label for="username" class="form-label">Name</label>
                                 <input
-                                    v-model="name"
+                                    v-model="username"
                                     type="text"
                                     class="form-control"
-                                    id="name"
+                                    id="username"
                                     required
                                 />
                             </div>
@@ -76,7 +76,7 @@ export default {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        username: this.name,
+                        username: this.username,
                         email: this.email,
                         password: this.password,
                         passwordConfirm : this.passwordConfirm,
