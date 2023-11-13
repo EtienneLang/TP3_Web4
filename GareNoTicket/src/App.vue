@@ -25,10 +25,10 @@ import { RouterLink, RouterView } from 'vue-router'
                                 <RouterLink class="nav-link" to="/">Accueil</RouterLink>
                             </li>
                             <li class="nav-item">
-                                <RouterLink class="nav-link" to="/login">Login</RouterLink>
+                                <RouterLink v-if="!isLoggedIn" class="nav-link" to="/login">Login</RouterLink>
                             </li>
                             <li class="nav-item">
-                                <RouterLink class="nav-link" to="/signup">Sign Up</RouterLink>
+                                <RouterLink v-if="!isLoggedIn" class="nav-link" to="/signup">Sign Up</RouterLink>
                             </li>
                         </ul>
                     </div>
@@ -39,4 +39,31 @@ import { RouterLink, RouterView } from 'vue-router'
     <RouterView />
 </template>
 
+<script>
+import Cookies from 'js-cookie';
+
+export default {
+  data() {
+    return {
+      isLoggedIn: false,
+    };
+  },
+  mounted() {
+    // Check if a token is present in the cookie
+    this.isLoggedIn = !!Cookies.get('token');
+  },
+  methods: {
+    logout() {
+      // Clear the token from the cookie
+      Cookies.remove('jwt');
+
+      // Update the isLoggedIn state
+      this.isLoggedIn = false;
+
+      // Redirect to the home page or any other route
+      this.$router.push('/');
+    },
+  },
+};
+</script>
 <style scoped></style>

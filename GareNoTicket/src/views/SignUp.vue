@@ -104,8 +104,6 @@ export default {
                 this.isPasswordMatch
             ) {
                 try {
-
-                
                     const response = await fetch('http://localhost:3000/auth/signup', {
                         method: 'POST',
                         headers: {
@@ -137,7 +135,7 @@ export default {
                     this.username,
                     this.email,
                     this.password,
-                    this.passwordConfirm,
+                    this.confirmPassword,
                 )
             }
         },

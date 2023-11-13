@@ -3,8 +3,57 @@ const jwt = require("jsonwebtoken");
 const config = require("../config");
 const User = require("../models/user");
 
-exports.login = (req, res, next) => {
-    const { email, password } = req.body;
+exports.login = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  try {
+    // On regarde si l'email est fourni
+    console.log(email);
+    if (!email) {
+      const error = new Error("Email is required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // On regarde si le mot de passe est fourni
+    if (!password) {
+      const error = new Error("Password is required");
+      error.statusCode = 400;
+      throw error;
+    }
+    console.log(email);
+    // On regarde si l'utilisateur existe
+    const user = await User.findOne({ email });
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 401;
+      throw error;
+    }
+    console.log(user);
+    // On compare les mots de passe
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      const error = new Error("Incorrect password");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    // On génère le token JWT
+    const token = jwt.sign(
+      {
+        email: user.email,
+      },
+      config.SECRET_JWT,
+      { expiresIn: "24h" }
+    );
+
+    return res.status(200).json({ success: true, token: token });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
 };
 
 exports.signup = async (req, res, next) => {
@@ -23,7 +72,6 @@ exports.signup = async (req, res, next) => {
             error.statusCode = 400;
             throw error;
         }
-        console.log(password, confirmPassword);
         // On regarde les mots de passe concordent
         if (password !== confirmPassword) {
             const error = new Error("Passwords do not match");
@@ -40,7 +88,7 @@ exports.signup = async (req, res, next) => {
         }
 
         // On hash le mot de passe
-        const hashedPassword = await bcrypt.hash(password, 12);
+        const hashedPassword = await bcrypt.hash(password);
 
         // Création de l'utilisateur
         const user = new User({
