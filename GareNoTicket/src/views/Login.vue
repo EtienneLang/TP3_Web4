@@ -37,9 +37,9 @@
 
 <script>
 import Cookies from 'js-cookie'
+import axios from 'axios'
 
 export default {
-  
     data() {
         return {
             email: '',
@@ -49,19 +49,12 @@ export default {
     methods: {
         async login() {
             try {
-                const response = await fetch('http://localhost:3000/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: this.email,
-                        password: this.password,
-                    }),
+                const response = await axios.post('http://localhost:3000/auth/login', {
+                    email: this.email,
+                    password: this.password,
                 })
-                const data = await response.json()
-                if (response.ok) {
-                    Cookies.set('token', data.token, { expires: 1 })
+                if (response.status === 200) {
+                    Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/')
                 }
             } catch (error) {
@@ -71,7 +64,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-/* Add your component-specific styles here */
-</style>

@@ -29,7 +29,8 @@ exports.getUsers = async (req, res, next) => {
 
 exports.getUser = async (req, res, next) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.userId;
+    console.log("userId", userId);
     const user = await checkUserExists(userId);
     res.status(200).json({
       user: user
@@ -42,7 +43,6 @@ exports.getUser = async (req, res, next) => {
 exports.getUserById = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    console.log(userId);
     const user = await checkUserExists(userId);
     res.status(200).json({
       user: user

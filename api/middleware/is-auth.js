@@ -10,9 +10,12 @@ module.exports = (req, res, next) => {
     res.status(401).send({ error: 'Non authentifié..' });
   }
   const token = authHeader.split(' ')[1];
+  console.log("token", token);
   let decodedToken;
   try {
     decodedToken = jwt.verify(token, SECRET_JWT);
+    console.log("decodedToken", decodedToken);
+
   } catch (err) {
     err.statusCode = 401;
     throw err;
@@ -23,6 +26,6 @@ module.exports = (req, res, next) => {
     throw error;
   }
   // Passe le token décodé dans la requête pour pouvoir l'utiliser ailleurs
-  req.user = decodedToken;
+  req.userId = decodedToken.userId;
   next();
 };

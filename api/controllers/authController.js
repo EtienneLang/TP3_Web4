@@ -8,7 +8,6 @@ exports.login = async (req, res, next) => {
 
   try {
     // On regarde si l'email est fourni
-    console.log(email);
     if (!email) {
       const error = new Error("Email is required");
       error.statusCode = 400;
@@ -21,7 +20,6 @@ exports.login = async (req, res, next) => {
       error.statusCode = 400;
       throw error;
     }
-    console.log(email);
     // On regarde si l'utilisateur existe
     const user = await User.findOne({ email });
     if (!user) {
@@ -29,7 +27,6 @@ exports.login = async (req, res, next) => {
       error.statusCode = 401;
       throw error;
     }
-    console.log(user);
     // On compare les mots de passe
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -41,7 +38,7 @@ exports.login = async (req, res, next) => {
     // On génère le token JWT
     const token = jwt.sign(
       {
-        email: user.email,
+        userId : user._id,
       },
       config.SECRET_JWT,
       { expiresIn: "24h" }
@@ -102,7 +99,7 @@ exports.signup = async (req, res, next) => {
 
         const token = jwt.sign(
             {
-                email: email,
+              userId : user._id,
             },
             config.SECRET_JWT,
             { expiresIn: "24h" }

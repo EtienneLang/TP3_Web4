@@ -30,6 +30,9 @@ import { RouterLink, RouterView } from 'vue-router'
                             <li class="nav-item">
                                 <RouterLink v-if="!isLoggedIn" class="nav-link" to="/signup">Sign Up</RouterLink>
                             </li>
+                            <li class="nav-item">
+                                <RouterLink v-if="isLoggedIn" class="nav-link" to="/profil">Mon profil</RouterLink>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -49,19 +52,15 @@ export default {
     };
   },
   mounted() {
-    // Check if a token is present in the cookie
     this.isLoggedIn = !!Cookies.get('token');
   },
   methods: {
     logout() {
-      // Clear the token from the cookie
-      Cookies.remove('jwt');
+      // Cookies.remove('jwt');
 
-      // Update the isLoggedIn state
-      this.isLoggedIn = false;
+      // this.isLoggedIn = false;
 
-      // Redirect to the home page or any other route
-      this.$router.push('/');
+      // this.$router.push('/');
     },
   },
 };

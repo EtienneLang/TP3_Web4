@@ -75,6 +75,7 @@
 
 <script>
 import Cookies from 'js-cookie'
+import axios from 'axios'
 export default {
     data() {
         return {
@@ -104,29 +105,19 @@ export default {
                 this.isPasswordMatch
             ) {
                 try {
-                    const response = await fetch('http://localhost:3000/auth/signup', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            username: this.username,
-                            email: this.email,
-                            password: this.password,
-                            confirmPassword: this.confirmPassword,
-                        }),
+                    const response = await axios.post('http://localhost:3000/auth/signup', {
+                        username: this.username,
+                        email: this.email,
+                        password: this.password,
+                        confirmPassword: this.confirmPassword,
                     })
 
-                    if (response.ok) {
+                    if (response.status === 200) {
                         // Successful login, handle the response as needed
                         const data = await response.json()
                         console.log('Login successful:', data)
                         Cookies.set('token', data.token, { expires: 1 })
-                        
-                    } else {
-                        // Unsuccessful login, handle the error
-                        console.error('Login failed:', response.statusText)
-                    }
+                    } 
                 } catch (error) {
                     console.error('An error occurred during login:', error)
                 }
