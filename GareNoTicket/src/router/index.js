@@ -3,6 +3,7 @@ import HomeView from '../views/Home.vue'
 import LoginView from '../views/Login.vue'
 import SignUpView from '../views/SignUp.vue'
 import ProfilView from '../views/Profil.vue'
+import MaplaceView from '../views/MaPlace.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/profil',
       name: 'profil',
       component: ProfilView
+    },
+    {
+      path: '/maplace',
+      name: 'maplace',
+      component: MaplaceView
     }
   ]
 })
