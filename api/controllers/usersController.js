@@ -52,7 +52,27 @@ exports.getUserById = async (req, res, next) => {
   }
 };
 
-exports.updateUser = async (req, res, next) => { }
+exports.updateUser = async (req, res, next) => { 
+  try {
+    console.log("Salut")
+    const userId = req.params.userId;
+    const user = await checkUserExists(userId);
+    const { email, username } = req.body;
+    if (email) {
+      user.email = email;
+    }
+    if (username) {
+      user.username = username;
+    }
+    await user.save();
+    res.status(200).json({
+      user: user,
+      token: req.token
+    });
+  } catch (err) {
+    next(err);
+  }
+}
 
 exports.updateCar = async (req, res, next) => { }
 
