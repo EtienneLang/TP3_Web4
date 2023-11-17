@@ -72,10 +72,10 @@ export default {
                 const response = await axios.put(
                     'http://localhost:3000/car/' + this.user._id,
                     {
-                        marque: this.user.voiture.marque,
-                        modele: this.user.voiture.modele,
-                        couleur: this.user.voiture.couleur,
-                        plaque: this.user.voiture.plaque,
+                        marque: this.voiture.marque,
+                        modele: this.voiture.modele,
+                        couleur: this.voiture.couleur,
+                        plaque: this.voiture.plaque,
                     },
                     {
                         headers: {

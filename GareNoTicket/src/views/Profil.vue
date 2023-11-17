@@ -15,9 +15,9 @@
                 </div>
             </div>
             <div>
-                <router-link to="/profil/user_modify">Modifier les informations de mon comptes</router-link>
-                <router-link to="/profil/car_modify">Modifier les informations de ma voiture</router-link>
-                <router-link to="/profil/user_delete">Supprimer mon compte</router-link>
+                <router-link class="button" to="/profil/user_modify">Modifier les informations de mon comptes</router-link>
+                <router-link class="button" to="/profil/car_modify">Modifier les informations de ma voiture</router-link>
+                <router-link class="button" to="/profil/user_delete">Supprimer mon compte</router-link>
             </div>
             <RouterView :user="user"/>
         </div>
@@ -58,5 +58,20 @@ export default {
 </script>
 
 <style>
-/* Your CSS styles go here */
+    .button {
+        background-color: #003B36;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        border-radius: 10px;
+        margin: 10px;
+    }
+    .button:hover {
+        background-color: #008C8A;
+    }
+
 </style>

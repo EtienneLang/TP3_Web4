@@ -74,7 +74,43 @@ exports.updateUser = async (req, res, next) => {
   }
 }
 
-exports.updateCar = async (req, res, next) => { }
+exports.updateCar = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId).populate('voiture');
+    if (!user) {
+      const error = new Error('L\'utilisateur n\'existe pas.');
+      error.statusCode = 404;
+      throw error;
+    }
+    const { marque, modele, couleur, plaque } = req.body;
+    console.log("plaques", plaque);
+    if (!user.voiture) {
+      const voiture = new Voiture({
+        marque: marque,
+        modele: modele,
+        couleur: couleur,
+        plaque: plaque,
+      });
+      await voiture.save();
+      user.voiture = voiture._id;
+    } else {
+      const voiture = user.voiture;
+      voiture.marque = marque || voiture.marque;
+      voiture.modele = modele || voiture.modele;
+      voiture.couleur = couleur || voiture.couleur;
+      voiture.plaque = plaque || voiture.plaque;
+      await voiture.save();
+    }
+    await user.save();
+    res.status(200).json({
+      user: user,
+      voiture: user.voiture
+    });
+  } catch (err) {
+    next(err);
+  }
+}
 
 
 
