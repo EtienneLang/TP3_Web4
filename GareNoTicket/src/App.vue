@@ -33,6 +33,9 @@ import { RouterLink, RouterView } from 'vue-router'
                             <li class="nav-item">
                                 <RouterLink v-if="isLoggedIn" class="nav-link" to="/profil">Mon profil</RouterLink>
                             </li>
+                            <li class="nav-item">
+                                <a v-if="isLoggedIn" class="nav-link" @click="logout">Logout</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -56,11 +59,9 @@ export default {
   },
   methods: {
     logout() {
-      // Cookies.remove('jwt');
-
-      // this.isLoggedIn = false;
-
-      // this.$router.push('/');
+      Cookies.remove('token');
+      this.isLoggedIn = false;
+      this.$router.push('/');
     },
   },
 };

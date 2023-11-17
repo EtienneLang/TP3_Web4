@@ -77,7 +77,7 @@ exports.signup = async (req, res, next) => {
             throw error;
         }
         // On regarde si le nom est entre 3 et 50 caractères
-        else if (username.length > 3 || username.length < 50) {
+        else if (username.length < 3 || username.length > 50) {
             const error = new Error("Le nom doit être entre 3 et 50 caractères");
             error.statusCode = 400;
             throw error;
@@ -95,9 +95,9 @@ exports.signup = async (req, res, next) => {
             error.statusCode = 400;
             throw error;
         }
-
+        console.log(password)
         // On hash le mot de passe
-        const hashedPassword = await bcrypt.hash(password);
+        const hashedPassword = await bcrypt.hash(password, 0);
 
         // Création de l'utilisateur
         const user = new User({
