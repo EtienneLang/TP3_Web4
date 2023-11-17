@@ -16,7 +16,7 @@
             </div>
             <div>
                 <router-link to="/profil/user_modify">Modifier les informations de mon comptes</router-link>
-                <router-link to="/profil/user_delete">Modifier les informations de ma voiture</router-link>
+                <router-link to="/profil/car_modify">Modifier les informations de ma voiture</router-link>
                 <router-link to="/profil/user_delete">Supprimer mon compte</router-link>
             </div>
             <RouterView :user="user"/>

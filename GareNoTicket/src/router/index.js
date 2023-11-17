@@ -5,6 +5,7 @@ import SignUpView from '../views/SignUp.vue'
 import ProfilView from '../views/Profil.vue'
 import MaplaceView from '../views/MaPlace.vue'
 import UserModifyView from '../components/forms/UserModifyForm.vue'
+import CarModifyView from '../components/forms/CarModifyForm.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,10 @@ const router = createRouter({
         {
           path: 'user_modify',
           component: UserModifyView
+        },
+        {
+          path: 'car_modify',
+          component: CarModifyView
         }
       ]
     },
