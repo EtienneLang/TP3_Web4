@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("../config");
 const User = require("../models/user");
+const voiture = require("../models/voiture");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -59,19 +60,30 @@ exports.signup = async (req, res, next) => {
     try {
         // On regarde si le nom est fourni
         if (!username) {
-            const error = new Error("Name is required");
+            const error = new Error("Le nom est requis");
             error.statusCode = 400;
             throw error;
         }
         // On regarde si l'email est fourni
-        if (!email) {
-            const error = new Error("Email is required");
+        else if (!email) {
+            const error = new Error("Le email est requis");
             error.statusCode = 400;
             throw error;
         }
         // On regarde les mots de passe concordent
-        if (password !== confirmPassword) {
-            const error = new Error("Passwords do not match");
+        else if (password !== confirmPassword) {
+            const error = new Error("Le mot de passe ne correspond pas");
+            error.statusCode = 400;
+            throw error;
+        }
+        // On regarde si le nom est entre 3 et 50 caractères
+        else if (username.length > 3 || username.length < 50) {
+            const error = new Error("Le nom doit être entre 3 et 50 caractères");
+            error.statusCode = 400;
+            throw error;
+        }
+        else if (password.length < 6) {
+            const error = new Error("Le mot de passe doit être au moins 6 caractères");
             error.statusCode = 400;
             throw error;
         }
@@ -92,6 +104,8 @@ exports.signup = async (req, res, next) => {
             email,
             username,
             password: hashedPassword,
+            isValet: false,
+            voiture: null,
         });
 
         // On sauvegarde l'utilisateur

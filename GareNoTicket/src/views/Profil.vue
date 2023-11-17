@@ -15,11 +15,11 @@
                 </div>
             </div>
             <div>
-                <router-link to="/profil/user_modify">Form 1</router-link>
-                <button class="btn btn-danger p-3 m-1">Supprimer mon compte</button>
+                <router-link to="/profil/user_modify">Modifier les informations de mon comptes</router-link>
+                <router-link to="/profil/user_delete">Modifier les informations de ma voiture</router-link>
+                <router-link to="/profil/user_delete">Supprimer mon compte</router-link>
             </div>
             <RouterView :user="user"/>
-
         </div>
     </div>
 

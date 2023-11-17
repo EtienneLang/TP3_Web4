@@ -11,12 +11,14 @@ const userSchema = new Schema(
     },
     username: {
       type: String,
-      required: true
+      required: true,
+      maxlength: [50, 'Le nom doit contenir au plus 50 caractères'],
+      minlength: [3, 'Le nom doit contenir au moins 3 caractères'],
     },
     password: {
       type: String,
       required: true,
-      minlength: 6
+      minlength: [6, 'Le mot de passe doit contenir au moins 6 caractères'],
     },
     isValet: {
       type: Boolean,
