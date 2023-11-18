@@ -2,7 +2,11 @@
     <div class="container">
         <div class="d-flex flex-column align-items-center">
             <div class="d-flex justify-content-center">
-                <img class="p-5" src="https://via.placeholder.com/150" alt="Photo de profil" />
+                <img
+                    class="p-5"
+                    :src="'https://source.boringavatars.com/beam/250/' + this.user._id"
+                    alt="Photo de profil"
+                />
                 <div class="d-flex flex-column align-items-center p-5">
                     <h1>Mon profil</h1>
                     <h2>{{ this.user.username }}</h2>
@@ -15,14 +19,17 @@
                 </div>
             </div>
             <div>
-                <router-link class="button" to="/profil/user_modify">Modifier les informations de mon comptes</router-link>
-                <router-link class="button" to="/profil/car_modify">Modifier les informations de ma voiture</router-link>
-                <!-- <router-link class="button" to="/profil/user_delete">Supprimer mon compte</router-link> -->
+                <router-link class="button" to="/profil/user_modify"
+                    >Modifier les informations de mon comptes</router-link
+                >
+                <router-link class="button" to="/profil/car_modify"
+                    >Modifier les informations de ma voiture</router-link
+                >
+                <div class="button" @click="deleteUser">Supprimer mon compte</div>
             </div>
-            <RouterView :user="user"/>
+            <RouterView :user="user" />
         </div>
     </div>
-
 </template>
 
 <script>
@@ -53,25 +60,45 @@ export default {
             }
         }
     },
-    methods: {},
+    methods: {
+        async deleteUser() {
+            const JWT = Cookies.get('token')
+            const confirmed = confirm('Are you sure you want to delete your account?')
+            if (confirmed) {
+                try {
+                    const response = await axios.delete('http://localhost:3000/user/', {
+                        headers: {
+                            Authorization: `Bearer ${JWT}`,
+                        },
+                    })
+                    if (response.status === 204) {
+                        console.log('User deleted')
+                        Cookies.remove('token')
+                        this.$router.push('/')
+                    }
+                } catch (error) {
+                    console.error(error)
+                }
+            }
+        },
+    },
 }
 </script>
 
 <style>
-    .button {
-        background-color: #003B36;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        border-radius: 10px;
-        margin: 10px;
-    }
-    .button:hover {
-        background-color: #008C8A;
-    }
-
+.button {
+    background-color: #0d6efd;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 10px;
+    margin: 10px;
+}
+.button:hover {
+    background-color: #0a53c2;
+}
 </style>

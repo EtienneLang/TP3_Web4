@@ -116,12 +116,12 @@ exports.updateCar = async (req, res, next) => {
 
 exports.deleteUser = async (req, res, next) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.userId;
     const user = await checkUserExists(userId);
-    await user.remove();
+    //JE VAIS DEVOIR REGARDER SI C'EST OK, METHODE DE BASE ÉTAIT .REMOVE MAIS CA NE MARCHAIT PAS
+    await User.deleteOne({ _id: userId });
     if (user.voiture) {
-      const voiture = await Voiture.findById(user.voiture);
-      await voiture.remove();
+     await Voiture.deleteOne({ _id:user.voiture._id });
     }
     res.status(204).send();
   } catch (err) {
