@@ -25,7 +25,7 @@
                 <router-link class="button" to="/profil/car_modify"
                     >Modifier les informations de ma voiture</router-link
                 >
-                <div class="button" @click="deleteUser">Supprimer mon compte</div>
+                <div class="button-danger" @click="deleteUser">Supprimer mon compte</div>
             </div>
             <RouterView :user="user" />
         </div>
@@ -101,4 +101,20 @@ export default {
 .button:hover {
     background-color: #0a53c2;
 }
+.button-danger {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 10px;
+    margin: 10px;
+}
+.button-danger:hover {
+    background-color: #c82333;
+}
+
 </style>

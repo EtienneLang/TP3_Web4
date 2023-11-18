@@ -7,64 +7,69 @@
                     <div class="card-body">
                         <form @submit.prevent="register" method="post">
                             <div class="mb-3">
-                                <label for="username" class="form-label">Name</label>
+                                <label for="username" class="form-label">Nom d'utilisateur:</label>
                                 <input
-                                    v-model="username"
+                                    v-model.trim="username"
                                     type="text"
                                     class="form-control"
                                     id="username"
                                     required
-                                    @blur="isUsernameValid = username.trim() !== ''"
+                                    @blur="validerUsername"
                                 />
-                                <div v-if="!isUsernameValid" class="text-danger">
-                                    Name is required.
-                                </div>
+                                <div v-if="error.username" class="text-danger">{{ error.username }}</div>
+
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input
-                                    v-model="email"
+                                    v-model.trim="email"
                                     type="email"
                                     class="form-control"
                                     id="email"
                                     required
-                                    @blur="isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)"
+                                    @blur="validerEmail"
                                 />
-                                <div v-if="!isEmailValid" class="text-danger">
-                                    Enter a valid email address.
-                                </div>
+                                <div v-if="error.email" class="text-danger">{{ error.email }}</div>
+
                             </div>
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
+                                <label for="password" class="form-label">Mot de passe:</label>
                                 <input
-                                    v-model="password"
+                                    v-model.trim="password"
                                     type="password"
                                     class="form-control"
                                     id="password"
                                     required
-                                    @blur="isPasswordValid = password.trim() !== ''"
+                                    @blur="validerPassword"
                                 />
-                                <div v-if="!isPasswordValid" class="text-danger">
-                                    Password is required.
-                                </div>
+                                <div v-if="error.password" class="text-danger">{{ error.password }}</div>
                             </div>
                             <div class="mb-3">
                                 <label for="confirmPassword" class="form-label"
-                                    >Confirm Password</label
-                                >
+                                    >Confirmation mot de passe:</label>
                                 <input
-                                    v-model="confirmPassword"
+                                    v-model.trim="confirmPassword"
                                     type="password"
                                     class="form-control"
                                     id="confirmPassword"
                                     required
-                                    @blur="isPasswordMatch = password === confirmPassword"
+                                    @blur="validerConfirmPassword"
                                 />
-                                <div v-if="!isPasswordMatch" class="text-danger">
-                                    Passwords do not match.
-                                </div>
+                                <div v-if="error.confirmPassword" class="text-danger">{{ error.confirmPassword }}</div>
+
                             </div>
-                            <button :disabled="!isPasswordMatch || !isPasswordValid || !isEmailValid || !isUsernameValid" type="submit" class="btn btn-primary">Create Account</button>
+                            <button
+                                :disabled="
+                                    error.username ||
+                                    error.email ||
+                                    error.password ||
+                                    error.confirmPassword
+                                "
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+                                Create Account
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -83,26 +88,61 @@ export default {
             email: '',
             password: '',
             confirmPassword: '',
-            isUsernameValid: true,
-            isEmailValid: true,
-            isPasswordValid: true,
-            isPasswordMatch: true,
+            error: {
+                username: null,
+                email: null,
+                password: null,
+                confirmPassword: null,
+            },
         }
     },
     methods: {
+        validerEmail() {
+            const regEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            if (!regEx.test(this.email)) {
+                this.error.email = 'Veuillez entrer une adresse email valide'
+            } else if (this.email.length === 0) {
+                this.error.email = "L'adresse email est requise"
+            } else {
+                this.error.email = null
+            }
+        },
+        validerUsername() {
+            if (this.username.length === 0) {
+                this.error.username = "Le nom d'utilisateur est requis"
+            } else if (this.username.length < 3) {
+                this.error.username = "Le nom d'utilisateur doit contenir au moins 3 caractères"
+            } else if (this.username.length > 50) {
+                this.error.username = "Le nom d'utilisateur doit contenir au maximum 50 caractères"
+            } else {
+                this.error.username = null
+            }
+        },
+        validerPassword() {
+            if (this.password.length < 6) {
+                this.error.password = 'Le mot de passe doit contenir au moins 6 caractères'
+            } else if (this.password.length === 0) {
+                this.error.password = 'Le mot de passe est requis'
+            } else {
+                this.error.password = null
+            }
+        },
+        validerConfirmPassword() {
+            if (this.confirmPassword !== this.password) {
+                this.error.confirmPassword = 'Les mots de passe ne correspondent pas'
+            } else if (this.confirmPassword.length === 0) {
+                this.error.confirmPassword = 'La confirmation du mot de passe est requise'
+            } else {
+                this.error.confirmPassword = null
+            }
+        },
         async register() {
-            console.log(
-                    'Registering with:',
-                    this.username,
-                    this.email,
-                    this.password,
-                    this.passwordConfirm,)
             //Si tout est bon, on envoie les données au serveur
             if (
-                this.isUsernameValid ||
-                this.isEmailValid ||
-                this.isPasswordValid ||
-                this.isPasswordMatch
+                !this.error.email ||
+                !this.error.username ||
+                !this.error.password ||
+                !this.error.confirmPassword
             ) {
                 try {
                     const response = await axios.post('http://localhost:3000/auth/signup', {
@@ -117,17 +157,10 @@ export default {
                         const data = await response.json()
                         console.log('Login successful:', data)
                         Cookies.set('token', data.token, { expires: 1 })
-                    } 
+                    }
                 } catch (error) {
-                    console.error('An error occurred during login:', error)
+                    this.error.email = error.message
                 }
-                console.log(
-                    'Registering with:',
-                    this.username,
-                    this.email,
-                    this.password,
-                    this.confirmPassword,
-                )
             }
         },
     },

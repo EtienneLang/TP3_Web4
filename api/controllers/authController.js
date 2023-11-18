@@ -91,7 +91,7 @@ exports.signup = async (req, res, next) => {
         // On regarde si le courriel est déjà utilisé
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            const error = new Error("User already exists");
+            const error = new Error("Ce courriel est déjà utilisé");
             error.statusCode = 400;
             throw error;
         }
