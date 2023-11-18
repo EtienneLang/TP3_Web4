@@ -154,12 +154,10 @@ export default {
 
                     if (response.status === 200) {
                         // Successful login, handle the response as needed
-                        const data = await response.json()
-                        console.log('Login successful:', data)
-                        Cookies.set('token', data.token, { expires: 1 })
+                        this.$router.push('/login')
                     }
                 } catch (error) {
-                    this.error.email = error.message
+                    console.error('An error occurred during login:', error)
                 }
             }
         },
