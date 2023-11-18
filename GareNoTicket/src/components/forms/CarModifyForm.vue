@@ -49,7 +49,7 @@
             <div v-if="errors.plaque" class="text-danger">{{ errors.plaque }}</div>
         </div>
 
-        <button type="submit" class="btn btn-primary mt-2">Modifier</button>
+        <button :disabled="errors.couleur || errors.marque || errors.modele || errors.plaque" type="submit" class="btn btn-primary mt-2">Modifier</button>
          
     </form>
 </template>
@@ -75,7 +75,20 @@ export default {
             },
         }
     },
+    created() {
+        //Si l'utilisateur n'a pas de voiture, on lui en crée une vide pour que le formulaire
+        //de modification de voiture fonctionne
+        if (!this.user.voiture) {
+            this.user.voiture = {
+                marque: '',
+                modele: '',
+                couleur: '',
+                plaque: '',
+            }
+        }
+    },
     methods: {
+        //Fonction de validation de la marque
         validerMarque() {
             if (this.user.voiture.marque.length < 1) {
                 this.errors.marque = 'La marque doit contenir au moins 1 caractères'
@@ -87,6 +100,7 @@ export default {
                 this.errors.marque = null
             }
         },
+        //Fonction de validation du modele
         validerModele() {
             if (this.user.voiture.modele.length < 1) {
                 this.errors.modele = 'Le modele doit contenir au moins 1 caractères'
@@ -98,6 +112,7 @@ export default {
                 this.errors.modele = null
             }
         },
+        //Fonction de validation de la couleur
         validerCouleur() {
             if (this.user.voiture.couleur.length < 3) {
                 this.errors.couleur = 'La couleur doit contenir au moins 3 caractères'
@@ -109,6 +124,7 @@ export default {
                 this.errors.couleur = null
             }
         },
+        //Fonction de validation de la plaque
         validerPlaque() {
             if (this.user.voiture.plaque.length !== 6) {
                 this.errors.plaque = 'La plaque doit contenir 6 caractères'
@@ -119,6 +135,7 @@ export default {
         async submitForm() {
             const JWT = Cookies.get('token')
             try {
+                //On envoie les données de la voiture à l'API
                 const response = await axios.put(
                     'http://localhost:3000/car/' + this.user._id,
                     {
