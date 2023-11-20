@@ -22,9 +22,10 @@
                 <router-link class="button" to="/profil/user_modify"
                     >Modifier les informations de mon comptes</router-link
                 >
-                <router-link class="button" to="/profil/car_modify"
+                <router-link v-if="!this.user.isValet" class="button" to="/profil/car_modify"
                     >Modifier les informations de ma voiture</router-link
                 >
+                
                 <div class="button-danger" @click="deleteUser">Supprimer mon compte</div>
             </div>
             <RouterView :user="user" />

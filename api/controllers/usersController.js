@@ -57,12 +57,15 @@ exports.updateUser = async (req, res, next) => {
     console.log("Salut")
     const userId = req.params.userId;
     const user = await checkUserExists(userId);
-    const { email, username } = req.body;
+    const { email, username, price } = req.body;
     if (email) {
       user.email = email;
     }
     if (username) {
       user.username = username;
+    }
+    if (price) {
+      user.price = price;
     }
     await user.save();
     res.status(200).json({

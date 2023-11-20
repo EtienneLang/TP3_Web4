@@ -5,7 +5,7 @@
             <input
                 type="text"
                 id="username"
-                v-model="user.username"
+                v-model.trim="user.username"
                 v-text="user.username"
                 class="form-control"
                 @blur="validerUsername"
@@ -19,7 +19,7 @@
             <input
                 type="email"
                 id="email"
-                v-model="user.email"
+                v-model.trim="user.email"
                 v-text="user.email"
                 class="form-control"
                 @blur="validerEmail"
@@ -27,6 +27,19 @@
             />
         </div>
         <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
+        <div v-if="user.isValet" class="form-group">
+            <label for="tarif">Tarif:</label>
+            <input
+                type="text"
+                id="tarif"
+                v-model.trim="user.price"
+                v-text="user.price"
+                class="form-control"
+                @blur="validerTarif"
+                required
+            />
+        </div>
+        <div v-if="errors.tarif" class="text-danger">{{ errors.tarif }}</div>
         <button :disabled="errors.email || errors.username" type="submit" class="btn btn-primary mt-2">Modifier</button>
     </form>
 </template>
@@ -47,6 +60,7 @@ export default {
             errors: {
                 email: null,
                 username: null,
+                tarif: null,
             },
         }
     },
@@ -68,6 +82,13 @@ export default {
                 this.errors.username = ''
             }
         },
+        validerTarif() {
+            if (this.user.price < 0) {
+                this.errors.tarif = 'Le tarif doit être positif'
+            } else {
+                this.errors.tarif = ''
+            }
+        },
         async submitForm() {
             const JWT = Cookies.get('token')
             try {
@@ -76,6 +97,7 @@ export default {
                     {
                         username: this.user.username,
                         email: this.user.email,
+                        price: this.user.price,
                     },
                     {
                         headers: {
@@ -85,8 +107,7 @@ export default {
                 )
                 if (response.status === 200) {
                     console.log('User modified')
-                    //Cookies.set('token', response.data.token, { expires: 1 })
-                    this.$router.push('/')
+                    this.$router.push('/profil')
                 }
             } catch (error) {
                 console.error(error)
