@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex flex-column justify-content-center align-items-center">
-        <h2 class="p-2">Carte - <i>Ma place</i></h2>
+        <h2 class="p-2">Carte - <i>Ma place</i> {{ user.username }}</h2>
         <div id="map"></div>
         <div class="d-flex">
             <div class="button" @click="confirmPopUp">Je laisse ma voiture</div>
@@ -40,6 +40,7 @@ export default {
             latlng: null,
             user: {},
             isParked: false,
+            map: null,
         }
     },
     async mounted() {
@@ -58,33 +59,87 @@ export default {
                 console.error('Error fetching user data:', error)
             }
         }
-        const success = (position) => {
-            const latitude = position.coords.latitude
-            const longitude = position.coords.longitude
-
-            var map = L.map('map').setView([latitude, longitude], 13)
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution:
-                    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            }).addTo(map)
-            if (this.user.voiture.isParked) {
-                var marker = L.marker([latitude, longitude]).addTo(map)
-                marker.bindPopup('<b>Votre voiture</b>').openPopup()
-            } else {
-                var marker = L.marker([latitude, longitude], { draggable: 'true' }).addTo(map)
-                marker.bindPopup('<b>Votre position.</b>').openPopup()
-            }
-            this.latlng = marker.getLatLng()
-        }
-        const error = (err) => {
-            console.error(err)
-        }
-
-        navigator.geolocation.getCurrentPosition(success, error)
+        this.mapInit()
     },
     methods: {
+        async mapInit() {
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject)
+                })
+
+                let latitude = position.coords.latitude
+                let longitude = position.coords.longitude
+                console.log(this.user.voiture.latitude, this.user.voiture.longitude)
+
+                if (this.user.voiture.isParked) {
+                    console.log(this.user.voiture.latitude, this.user.voiture.longitude)
+                    latitude = this.user.voiture.latitude
+                    longitude = this.user.voiture.longitude
+                }
+                console.log(latitude, longitude)
+
+                this.map = L.map('map').setView([latitude, longitude], 13)
+
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution:
+                        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                }).addTo(this.map)
+
+                if (this.user.voiture.isParked) {
+                    var marker = L.marker([latitude, longitude]).addTo(this.map)
+                    marker.bindPopup('<b>Votre voiture</b>').openPopup()
+                } else {
+                    var marker = L.marker([latitude, longitude], { draggable: 'true' }).addTo(
+                        this.map,
+                    )
+                    marker.bindPopup('<b>Votre position.</b>').openPopup()
+                    marker.on('dragend', this.onMarkerDragEnd)
+                }
+
+                this.latlng = marker.getLatLng()
+            } catch (error) {
+                console.error(error)
+            }
+        },
+        async markerInit() {
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject)
+                })
+                let latitude = position.coords.latitude
+                let longitude = position.coords.longitude
+                console.log(this.user.voiture.latitude, this.user.voiture.longitude)
+
+                if (this.user.voiture.isParked) {
+                    console.log(this.user.voiture.latitude, this.user.voiture.longitude)
+                    latitude = this.user.voiture.latitude
+                    longitude = this.user.voiture.longitude
+                }
+                if (this.user.voiture.isParked) {
+                    var marker = L.marker([latitude, longitude]).addTo(this.map)
+                    marker.bindPopup('<b>Votre voiture</b>').openPopup()
+                } else {
+                    var marker = L.marker([latitude, longitude], { draggable: 'true' }).addTo(
+                        this.map,
+                    )
+                    marker.bindPopup('<b>Votre position.</b>').openPopup()
+                    marker.on('dragend', this.onMarkerDragEnd)
+                }
+            } catch (error) {
+                console.error(error)
+            }
+        },
+        clearMap() {
+            this.map.eachLayer((layer) => {
+                if (layer instanceof L.Marker) {
+                    this.map.removeLayer(layer)
+                }
+            })
+        },
         onMarkerDragEnd(event) {
+            console.log('onMarkerDragEnd')
             if (!this.user.voiture.isParked) {
                 this.latlng = event.target.getLatLng()
             }
@@ -118,6 +173,8 @@ export default {
                 )
                 if (response.status === 200) {
                     console.log(this.user.voiture.isParked)
+                    this.clearMap()
+                    this.markerInit()
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/maplace')
                 }
@@ -145,7 +202,9 @@ export default {
                     },
                 )
                 if (response.status === 200) {
-                    console.log('Car moved')
+                    this.clearMap()
+                    var marker = L.marker([this.latlng.lat, this.latlng.lng]).addTo(this.map)
+                    marker.bindPopup('<b>Votre voiture</b>').openPopup()
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/maplace')
                 }
