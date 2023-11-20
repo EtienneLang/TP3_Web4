@@ -35,6 +35,7 @@ const voitureSchema = new Schema(
     },
     isMoving: {
       type: Boolean,
+      default: false,
     },
     latitude: {
       type: Number,

@@ -24,15 +24,34 @@
 <script>
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import Cookies from 'js-cookie'
+import axios from 'axios'
+import { toRefs } from 'vue';
 
 export default {
     data() {
         return {
             confirmationPopUp: false,
             latlng: null,
+            user: {},
         }
     },
-    mounted() {
+    async mounted() {
+        const JWT = Cookies.get('token')
+        console.log(JWT)
+        if (JWT) {
+            try {
+                const response = await axios.get('http://localhost:3000/user', {
+                    headers: {
+                        Authorization: `Bearer ${JWT}`,
+                    },
+                })
+                const {user} =  toRefs(response.data)
+                this.user = user
+            } catch (error) {
+                console.error('Error fetching user data:', error)
+            }
+        }
         const success = (position) => {
             const latitude = position.coords.latitude
             const longitude = position.coords.longitude
@@ -46,18 +65,19 @@ export default {
             var marker = L.marker([latitude, longitude], { draggable: 'true' }).addTo(map)
             marker.bindPopup('<b>Votre position.</b>').openPopup()
             marker.on('dragend', this.onMarkerDragEnd)
+            this.latlng = marker.getLatLng()
         }
-
         const error = (err) => {
             console.error(err)
         }
 
         navigator.geolocation.getCurrentPosition(success, error)
+        
     },
     methods: {
         onMarkerDragEnd(event) {
             // Update marker coordinates when dragged
-            this.latlng= event.target.getLatLng()
+            this.latlng = event.target.getLatLng()
         },
         confirmPopUp() {
             console.log('confirmMove')
@@ -67,9 +87,33 @@ export default {
             console.log('AnnulerConfirmation')
             this.confirmationPopUp = false
         },
-        ConfirmPosition() {
+        async ConfirmPosition() {
             console.log(this.latlng)
             this.confirmationPopUp = false
+            const JWT = Cookies.get('token')
+            try {
+                //On envoie les données de la voiture à l'API
+                const response = await axios.put(
+                    'http://localhost:3000/car/' + this.user._id,
+                    {
+                        latitude: this.latlng.lat,
+                        longitude: this.latlng.lng,
+                        isParked: true,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${JWT}`,
+                        },
+                    },
+                )
+                if (response.status === 200) {
+                    console.log('Car moved')
+                    //Cookies.set('token', response.data.token, { expires: 1 })
+                    this.$router.push('/maplace')
+                }
+            } catch (error) {
+                console.error(error)
+            }
         },
     },
 }

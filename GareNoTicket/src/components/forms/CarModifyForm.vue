@@ -143,6 +143,8 @@ export default {
                         modele: this.user.voiture.modele,
                         couleur: this.user.voiture.couleur,
                         plaque: this.user.voiture.plaque,
+                        isParked: false,
+                         
                     },
                     {
                         headers: {
