@@ -2,7 +2,12 @@
     <div class="d-flex flex-column justify-content-center align-items-center">
         <h2 class="p-2">Carte - <i>Ma place</i></h2>
         <div id="map"></div>
-        <div class="button" @click="confirmPopUp">Je laisse ma voiture</div>
+        <div class="d-flex">
+            <div class="button" @click="confirmPopUp">Je laisse ma voiture</div>
+            <div class="button" @click="recupereVoiture">J'ai récupéré ma voiture</div>
+        </div>
+
+        <!-- Carte de confirmation du stationnement -->
         <div v-if="confirmationPopUp" class="card w-50 mb-5">
             <div class="card-header">
                 <h3>Confirmation</h3>
@@ -26,7 +31,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import Cookies from 'js-cookie'
 import axios from 'axios'
-import { toRefs } from 'vue';
+import { toRefs } from 'vue'
 
 export default {
     data() {
@@ -34,6 +39,7 @@ export default {
             confirmationPopUp: false,
             latlng: null,
             user: {},
+            isParked: false,
         }
     },
     async mounted() {
@@ -46,7 +52,7 @@ export default {
                         Authorization: `Bearer ${JWT}`,
                     },
                 })
-                const {user} =  toRefs(response.data)
+                const { user } = toRefs(response.data)
                 this.user = user
             } catch (error) {
                 console.error('Error fetching user data:', error)
@@ -62,9 +68,13 @@ export default {
                 attribution:
                     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             }).addTo(map)
-            var marker = L.marker([latitude, longitude], { draggable: 'true' }).addTo(map)
-            marker.bindPopup('<b>Votre position.</b>').openPopup()
-            marker.on('dragend', this.onMarkerDragEnd)
+            if (this.user.voiture.isParked) {
+                var marker = L.marker([latitude, longitude]).addTo(map)
+                marker.bindPopup('<b>Votre voiture</b>').openPopup()
+            } else {
+                var marker = L.marker([latitude, longitude], { draggable: 'true' }).addTo(map)
+                marker.bindPopup('<b>Votre position.</b>').openPopup()
+            }
             this.latlng = marker.getLatLng()
         }
         const error = (err) => {
@@ -72,12 +82,13 @@ export default {
         }
 
         navigator.geolocation.getCurrentPosition(success, error)
-        
     },
     methods: {
         onMarkerDragEnd(event) {
+            if (!this.user.voiture.isParked) {
+                this.latlng = event.target.getLatLng()
+            }
             // Update marker coordinates when dragged
-            this.latlng = event.target.getLatLng()
         },
         confirmPopUp() {
             console.log('confirmMove')
@@ -86,6 +97,33 @@ export default {
         AnnulerConfirmation() {
             console.log('AnnulerConfirmation')
             this.confirmationPopUp = false
+        },
+        async recupereVoiture() {
+            const JWT = Cookies.get('token')
+            console.log('recupereVoiture', this.user._id)
+            try {
+                //On envoie les données de la voiture à l'API
+                const response = await axios.put(
+                    'http://localhost:3000/car/' + this.user._id,
+                    {
+                        latitude: null,
+                        longitude: null,
+                        isParked: false,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${JWT}`,
+                        },
+                    },
+                )
+                if (response.status === 200) {
+                    console.log(this.user.voiture.isParked)
+                    //Cookies.set('token', response.data.token, { expires: 1 })
+                    this.$router.push('/maplace')
+                }
+            } catch (error) {
+                console.error(error)
+            }
         },
         async ConfirmPosition() {
             console.log(this.latlng)

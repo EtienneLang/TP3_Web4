@@ -32,6 +32,7 @@ const voitureSchema = new Schema(
     },
     isParked: {
       type: Boolean,
+      default: false,
     },
     isMoving: {
       type: Boolean,

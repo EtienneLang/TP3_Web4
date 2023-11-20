@@ -86,7 +86,7 @@ exports.updateCar = async (req, res, next) => {
       throw error;
     }
     const { marque, modele, couleur, plaque, latitude, longitude, isParked } = req.body;
-    console.log("plaques", plaque);
+    console.log("plaques", isParked);
     if (!user.voiture) {
       const voiture = new Voiture({
         marque: marque,
@@ -107,7 +107,7 @@ exports.updateCar = async (req, res, next) => {
       voiture.plaque = plaque || voiture.plaque;
       voiture.latitude = latitude || voiture.latitude;
       voiture.longitude = longitude || voiture.longitude;
-      voiture.isParked = isParked || voiture.isParked;
+      voiture.isParked = isParked;
       await voiture.save();
     }
     await user.save();
