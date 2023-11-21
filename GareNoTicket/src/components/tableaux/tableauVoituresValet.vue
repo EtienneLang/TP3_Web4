@@ -28,6 +28,9 @@
 <script>
 import Cookies from 'js-cookie'
 import axios from 'axios'
+import L from 'leaflet'
+import redPin from '../../img/pin.png'
+import carPin from '../../img/car.png'
 
 export default {
     props: {
@@ -35,7 +38,11 @@ export default {
             type: Object,
             required: true,
         },
-    },
+        map: {
+            type: Object,
+            required: true,
+        },
+},
     data() {
         return {
             usersRelatedToValet: [],
@@ -48,6 +55,16 @@ export default {
             for (const user of users.data.users) {
                 if (user.voiture.valet === this.user._id) {
                     this.usersRelatedToValet.push(user)
+                    var marker = L.marker([user.voiture.latitude, user.voiture.longitude], {
+                        draggable: 'true',
+                        icon: L.icon({
+                            iconUrl: carPin,
+                            iconSize: [41, 41],
+                            iconAnchor: [20.5, 41],
+                            popupAnchor: [1, -34],
+                        }),
+                    }).addTo(this.map)
+                    marker.bindPopup('<b>'+ user.username +'</b><br>' + user.voiture.marque + user.voiture.modele + '<br>' + user.voiture.couleur + '<br>' + user.voiture.plaque).openPopup()
                 }
             }
         } catch (error) {

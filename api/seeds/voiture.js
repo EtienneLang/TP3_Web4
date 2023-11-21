@@ -8,8 +8,8 @@ module.exports = [
         valet: "5f1f4d5b3c6d3b0017f4c9e6",
         isParked: true,
         isMoving: false,
-        latitude: 0,
-        longitude: 0,
+        latitude: 46.791027,
+        longitude: -71.265445,
         timeToLeave: null,
     },
     {
@@ -34,8 +34,8 @@ module.exports = [
         valet: "5f1f4d5b3c6d3b0017f4c9e6",
         isParked: true,
         isMoving: false,
-        latitude: 0,
-        longitude: 0,
+        latitude: 46.792180,
+        longitude: -71.266599,
         timeToLeave: null,
     },
     {
@@ -47,8 +47,8 @@ module.exports = [
         valet: "5f1f4d5b3c6d3b0017f4c9e6",
         isParked: true,
         isMoving: false,
-        latitude: 0,
-        longitude: 0,
+        latitude: 46.792745,
+        longitude: -71.262660,
         timeToLeave: null,
     },
     {
