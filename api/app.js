@@ -6,6 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const historiqueRoutes = require('./routes/historique');
+const seed = require('./routes/db');
 const config = require('./config');
 
 const app = express();
@@ -33,6 +34,7 @@ app.use(
 app.use('/auth', authRoutes);
 app.use(userRoutes);
 app.use(historiqueRoutes);
+app.use(seed);
 
 
 
