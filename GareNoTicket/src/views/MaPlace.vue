@@ -14,8 +14,8 @@
         <h2 class="p-2">Carte - <i>Ma place</i></h2>
         <div id="map"></div>
         <div class="d-flex">
-            <div class="button" @click="confirmPopUp">Je laisse ma voiture</div>
-            <div class="button" @click="recupereVoiture">J'ai récupéré ma voiture</div>
+            <div v-if="!isParked" class="button" @click="confirmPopUp">Je laisse ma voiture</div>
+            <div v-if="isParked" class="button" @click="recupereVoiture">J'ai récupéré ma voiture</div>
         </div>
 
         <!-- Carte de confirmation du stationnement -->
@@ -43,6 +43,8 @@ import 'leaflet/dist/leaflet.css'
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import { toRefs } from 'vue'
+import redPin from '../img/pin.png'
+import carPin from '../img/car.png'
 
 export default {
     data() {
@@ -51,6 +53,7 @@ export default {
             latlng: null,
             user: {},
             map: null,
+            isParked: false,
             successAlert: false,
         }
     },
@@ -66,6 +69,9 @@ export default {
                 })
                 const { user } = toRefs(response.data)
                 this.user = user
+                if (this.user.voiture.isParked) {
+                    this.isParked = true
+                }
             } catch (error) {
                 console.error('Error fetching user data:', error)
             }
@@ -81,9 +87,8 @@ export default {
 
                 let latitude = position.coords.latitude
                 let longitude = position.coords.longitude
-                console.log(this.user.voiture.latitude, this.user.voiture.longitude)
 
-                if (this.user.voiture.isParked) {
+                if (!this.user.isValet && this.user.voiture.isParked) {
                     console.log(this.user.voiture.latitude, this.user.voiture.longitude)
                     latitude = this.user.voiture.latitude
                     longitude = this.user.voiture.longitude
@@ -98,15 +103,29 @@ export default {
                         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                 }).addTo(this.map)
 
-                if (this.user.voiture.isParked) {
-                    var marker = L.marker([latitude, longitude]).addTo(this.map)
+                if (!this.user.isValet && this.user.voiture.isParked) {
+                    var marker = L.marker([latitude, longitude], {
+                        icon: L.icon({
+                            iconUrl: carPin,
+                            iconSize: [41, 41],
+                            iconAnchor: [20.5, 41],
+                            popupAnchor: [1, -34],
+                        }),
+                    }).addTo(this.map)
                     marker.bindPopup('<b>Votre voiture</b>').openPopup()
                 } else {
-                    var marker = L.marker([latitude, longitude], { draggable: 'true' }).addTo(
-                        this.map,
-                    )
+                    var marker = L.marker([latitude, longitude], {
+                        draggable: 'true',
+                        icon: L.icon({
+                            iconUrl: redPin,
+                            iconSize: [41, 41],
+                            iconAnchor: [20.5, 41],
+                            popupAnchor: [1, -34],
+                        }),
+                    }).addTo(this.map)
                     marker.bindPopup('<b>Votre position.</b>').openPopup()
-                    marker.on('dragend', this.onMarkerDragEnd)
+                    marker.on({dragend: this.onMarkerDragEnd})
+                    this.map.on('click', this.onMapClick)
                 }
 
                 this.latlng = marker.getLatLng()
@@ -124,19 +143,32 @@ export default {
                 console.log(this.user.voiture.latitude, this.user.voiture.longitude)
 
                 if (this.user.voiture.isParked) {
-                    console.log(this.user.voiture.latitude, this.user.voiture.longitude)
+                    console.log("Je suis parké")
                     latitude = this.user.voiture.latitude
                     longitude = this.user.voiture.longitude
                 }
-                if (this.user.voiture.isParked) {
-                    var marker = L.marker([latitude, longitude]).addTo(this.map)
+                if (!this.user.isValet && this.user.voiture.isParked) {
+                    var marker = L.marker([latitude, longitude], {
+                        icon: L.icon({
+                            iconUrl: carPin,
+                            iconSize: [41, 41],
+                            iconAnchor: [20.5, 41],
+                            popupAnchor: [1, -34],
+                        }),
+                    }).addTo(this.map)
                     marker.bindPopup('<b>Votre voiture</b>').openPopup()
                 } else {
-                    var marker = L.marker([latitude, longitude], { draggable: 'true' }).addTo(
-                        this.map,
-                    )
+                    var marker = L.marker([latitude, longitude], {
+                        draggable: 'true',
+                        icon: L.icon({
+                            iconUrl: redPin,
+                            iconSize: [41, 41],
+                            iconAnchor: [20.5, 41],
+                            popupAnchor: [1, -34],
+                        }),
+                    }).addTo(this.map)
                     marker.bindPopup('<b>Votre position.</b>').openPopup()
-                    marker.on('dragend', this.onMarkerDragEnd)
+                    marker.on({dragend: this.onMarkerDragEnd})
                 }
             } catch (error) {
                 console.error(error)
@@ -185,9 +217,11 @@ export default {
                 if (response.status === 200) {
                     console.log(this.user.voiture.isParked)
                     this.clearMap()
+                    this.user.voiture.isParked = false
                     this.markerInit()
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/maplace')
+                    this.isParked = false
                     this.showSuccessAlert()
                 }
             } catch (error) {
@@ -215,10 +249,18 @@ export default {
                 )
                 if (response.status === 200) {
                     this.clearMap()
-                    var marker = L.marker([this.latlng.lat, this.latlng.lng]).addTo(this.map)
+                    var marker = L.marker([this.latlng.lat, this.latlng.lng], {
+                        icon: L.icon({
+                            iconUrl: carPin,
+                            iconSize: [41, 41],
+                            iconAnchor: [20.5, 41],
+                            popupAnchor: [1, -34],
+                        }),
+                    }).addTo(this.map)
                     marker.bindPopup('<b>Votre voiture</b>').openPopup()
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/maplace')
+                    this.isParked = true
                     this.showSuccessAlert()
                 }
             } catch (error) {
