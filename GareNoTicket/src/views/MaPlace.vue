@@ -1,6 +1,17 @@
 <template>
+    <!-- Alert de succès -->
+    <div v-if="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+        L'action a été effectuée avec succès !
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+            @click="hideSuccessAlert"
+        ></button>
+    </div>
     <div class="d-flex flex-column justify-content-center align-items-center">
-        <h2 class="p-2">Carte - <i>Ma place</i> {{ user.username }}</h2>
+        <h2 class="p-2">Carte - <i>Ma place</i></h2>
         <div id="map"></div>
         <div class="d-flex">
             <div class="button" @click="confirmPopUp">Je laisse ma voiture</div>
@@ -39,8 +50,8 @@ export default {
             confirmationPopUp: false,
             latlng: null,
             user: {},
-            isParked: false,
             map: null,
+            successAlert: false,
         }
     },
     async mounted() {
@@ -177,6 +188,7 @@ export default {
                     this.markerInit()
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/maplace')
+                    this.showSuccessAlert()
                 }
             } catch (error) {
                 console.error(error)
@@ -207,10 +219,19 @@ export default {
                     marker.bindPopup('<b>Votre voiture</b>').openPopup()
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/maplace')
+                    this.showSuccessAlert()
                 }
             } catch (error) {
                 console.error(error)
             }
+        },
+        showSuccessAlert() {
+            this.successAlert = true
+
+            // Hide the alert after 5 seconds
+            setTimeout(() => {
+                this.successAlert = false
+            }, 3000)
         },
     },
 }
