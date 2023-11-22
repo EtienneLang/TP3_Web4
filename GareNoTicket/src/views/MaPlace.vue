@@ -296,6 +296,7 @@ export default {
             )
             //On récupère le nombre de secondes depuis le début du jour
             const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
+
             //let tempsRestant = 0
             let tempsAQuitte = 0
             //Si on est entre 11h et 13h30h
@@ -321,13 +322,7 @@ export default {
                 //tempsRestant = 3600
                 tempsAQuitte = secondesDepuisDebutJour + 3600
             }
-            let heureDansDb = new Date()
-
-            // Réinitialisez les composants de l'heure à 0
-            heureDansDb.setHours(0, 0, 0, 0)
-            // Ajoutez le nombre de secondes spécifié (-5 heures pour le décalage horaire)
-            heureDansDb.setSeconds(tempsAQuitte - 3600 * 5)
-            return heureDansDb
+            return tempsAQuitte
         },
     },
 }
