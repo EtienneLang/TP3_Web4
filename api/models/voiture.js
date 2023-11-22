@@ -46,6 +46,7 @@ const voitureSchema = new Schema(
     },
     timeToLeave: {
       type: Date,
+      timezone: 'America/New_York'
     },
   },
   { timestamps: true }

@@ -53,6 +53,7 @@ import carPin from '../img/car.png'
 import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
 
 export default {
+    components: { TableauVoituresValet },
     data() {
         return {
             confirmationPopUp: false,
@@ -168,6 +169,7 @@ export default {
                     }).addTo(this.map)
                     marker.bindPopup('<b>Votre position.</b>').openPopup()
                     marker.on({ dragend: this.onMarkerDragEnd })
+                    map.panTo(marker.getLatLng())
                 }
             } catch (error) {
                 console.error(error)
@@ -206,6 +208,7 @@ export default {
                         latitude: null,
                         longitude: null,
                         isParked: false,
+                        timeToLeave: null,
                     },
                     {
                         headers: {
@@ -232,6 +235,9 @@ export default {
             this.confirmationPopUp = false
             const JWT = Cookies.get('token')
             try {
+                let tempsAQuitter = this.determinerTempsRestant()
+                console.log(tempsAQuitter)
+
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
                     'http://localhost:3000/car/' + this.user._id,
@@ -239,6 +245,7 @@ export default {
                         latitude: this.latlng.lat,
                         longitude: this.latlng.lng,
                         isParked: true,
+                        timeToLeave: tempsAQuitter,
                     },
                     {
                         headers: {
@@ -258,6 +265,7 @@ export default {
                     }).addTo(this.map)
                     marker.bindPopup('<b>Votre voiture</b>').openPopup()
                     //Cookies.set('token', response.data.token, { expires: 1 })
+                    this.map.panTo(marker.getLatLng())
                     this.$router.push('/maplace')
                     this.isParked = true
                     this.showSuccessAlert()
@@ -273,8 +281,55 @@ export default {
                 this.successAlert = false
             }, 3000)
         },
+        determinerTempsRestant() {
+            //Tout les constantes sont en secondes
+            const onzeHeure = 11 * 3600
+            const treizeHeureTrente = 13 * 3600 + 30 * 60
+            const seizeHeure = 16 * 3600
+            const neufHeure = 9 * 3600
+            const minuit = 24 * 3600
+            let maintenant = new Date()
+            const debutDuJour = new Date(
+                maintenant.getFullYear(),
+                maintenant.getMonth(),
+                maintenant.getDate(),
+            )
+            //On récupère le nombre de secondes depuis le début du jour
+            const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
+            //let tempsRestant = 0
+            let tempsAQuitte = 0
+            //Si on est entre 11h et 13h30h
+            if (
+                secondesDepuisDebutJour >= onzeHeure &&
+                secondesDepuisDebutJour < treizeHeureTrente
+            ) {
+                //tempsRestant = treizeHeureTrente - secondesDepuisDebutJour
+                tempsAQuitte = treizeHeureTrente
+            }
+            //Si on est entre 16h et minuit
+            else if (secondesDepuisDebutJour >= seizeHeure && secondesDepuisDebutJour < minuit) {
+                //tempsRestant = 'demain'
+                tempsAQuitte = minuit  + neufHeure + 3600
+            }
+            //Si on est entre minuit et 9h
+            else if (secondesDepuisDebutJour < neufHeure && secondesDepuisDebutJour >= 0) {
+                //tempsRestant = (neufHeure + 3600) - secondesDepuisDebutJour
+                tempsAQuitte = neufHeure + 3600
+            }
+            //Si on est dans peut importe quel autre cas, on met 1h
+            else {
+                //tempsRestant = 3600
+                tempsAQuitte = secondesDepuisDebutJour + 3600
+            }
+            let heureDansDb = new Date()
+
+            // Réinitialisez les composants de l'heure à 0
+            heureDansDb.setHours(0, 0, 0, 0)
+            // Ajoutez le nombre de secondes spécifié (-5 heures pour le décalage horaire)
+            heureDansDb.setSeconds(tempsAQuitte - 3600 * 5)
+            return heureDansDb
+        },
     },
-    components: { TableauVoituresValet },
 }
 </script>
 
