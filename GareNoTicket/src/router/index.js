@@ -44,6 +44,11 @@ const router = createRouter({
       path: '/maplace',
       name: 'maplace',
       component: MaplaceView,
+    },
+    {
+      path: '/transaction',
+      name: 'transaction',
+      component: () => import('../views/Transaction.vue')
     }
   ]
 })

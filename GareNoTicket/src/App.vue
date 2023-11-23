@@ -36,6 +36,9 @@ import { RouterLink, RouterView } from 'vue-router'
                             <li>
                                 <RouterLink v-if="isLoggedIn" class="nav-link" to="/maplace">Ma place</RouterLink>
                             </li>
+                            <li>
+                                <RouterLink v-if="isLoggedIn" class="nav-link" to="/transaction">Transaction</RouterLink>
+                            </li>
                             <li class="nav-item">
                                 <a v-if="isLoggedIn" class="nav-link" @click="logout">Logout</a>
                             </li>
