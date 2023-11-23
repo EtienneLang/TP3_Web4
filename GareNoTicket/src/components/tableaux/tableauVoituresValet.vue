@@ -21,7 +21,7 @@
                     <td v-if="user.voiture.timeToLeave >= 57600">Demain</td>
                     <td v-else-if="user.voiture.timeToLeave >= 0">{{ user.voiture.timeToLeave }}</td>
                     <td class="text-danger" v-else>Temps écoulé</td>
-                    <td><div @click="ConfirmPosition(user._id,latlng[user._id].lat,latlng[user._id].lng, map)">Bouger la voiture</div></td>
+                    <td><div @click="ConfirmPosition">Bouger la voiture</div></td>
                 </tr>
             </tbody>
         </table>
@@ -33,7 +33,6 @@ import axios from 'axios'
 import L from 'leaflet'
 import carPin from '../../img/car.png'
 import Cookies from 'js-cookie'
-import {ConfirmPosition} from '../../utils.js'
 export default {
     props: {
         user: {
@@ -116,7 +115,6 @@ export default {
                 }
             })
         },
-        ConfirmPosition,
     },
 }
 </script>

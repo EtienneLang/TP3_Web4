@@ -34,10 +34,7 @@
                 </p>
             </div>
             <div class="card-footer">
-                <div
-                    class="btn btn-success m-2"
-                    @click="ConfirmPosition(user._id, latlng.lat, latlng.lng, map)"
-                >
+                <div class="btn btn-success m-2" @click="ConfirmPosition(user._id)">
                     Je confirme
                 </div>
                 <div class="btn btn-danger m-2" @click="AnnulerConfirmation">Annuler</div>
@@ -56,7 +53,7 @@ import { toRefs } from 'vue'
 import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
 import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
-import { ConfirmPosition, showSuccessAlert } from '../utils.js'
+
 export default {
     components: { TableauVoituresValet },
     data() {
@@ -159,6 +156,22 @@ export default {
             }
         },
         /**
+         * Supprime tous les marqueurs de la carte avant de réinitialiser
+         */
+        beforeDestroy() {
+            this.clearMap()
+        },
+        /**
+         * Supprime tous les marqueurs de la carte
+         */
+        clearMap() {
+            this.map.eachLayer((layer) => {
+                if (layer instanceof L.Marker) {
+                    this.map.removeLayer(layer)
+                }
+            })
+        },
+        /**
          * Fonction appelée lorsqu'on déplace le marqueur
          * @param {*} event
          */
@@ -183,7 +196,6 @@ export default {
             console.log('AnnulerConfirmation')
             this.confirmationPopUp = false
         },
-        ConfirmPosition,
         /**
          * Fonction pour récuperer la voiture
          */
@@ -214,13 +226,113 @@ export default {
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/maplace')
                     this.isParked = false
-                    showSuccessAlert
+                    this.showSuccessAlert()
                 }
             } catch (error) {
                 console.error(error)
             }
         },
-        showSuccessAlert,
+        /**
+         * Fonction pour confirmer la position de la voiture
+         */
+        async ConfirmPosition(userId) {
+            console.log(this.latlng)
+            this.confirmationPopUp = false
+            const JWT = Cookies.get('token')
+            try {
+                let tempsAQuitter = this.determinerTempsRestant()
+                console.log(tempsAQuitter)
+                //On envoie les données de la voiture à l'API
+                const response = await axios.put(
+                    'http://localhost:3000/car/' + userId,
+                    {
+                        latitude: this.latlng.lat,
+                        longitude: this.latlng.lng,
+                        isParked: true,
+                        timeToLeave: tempsAQuitter,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${JWT}`,
+                        },
+                    },
+                )
+                if (response.status === 200) {
+                    this.clearMap()
+                    var marker = L.marker([this.latlng.lat, this.latlng.lng], {
+                        icon: L.icon({
+                            iconUrl: carPin,
+                            iconSize: [41, 41],
+                            iconAnchor: [20.5, 41],
+                            popupAnchor: [1, -34],
+                        }),
+                    }).addTo(this.map)
+                    marker.bindPopup('<b>Votre voiture</b>').openPopup()
+                    //Cookies.set('token', response.data.token, { expires: 1 })
+                    this.map.panTo(marker.getLatLng())
+                    this.$router.push('/maplace')
+                    this.isParked = true
+                    this.showSuccessAlert()
+                }
+            } catch (error) {
+                console.error(error)
+            }
+        },
+        determinerTempsRestant() {
+            //Tout les constantes sont en secondes
+            const onzeHeure = 11 * 3600
+            const treizeHeureTrente = 13 * 3600 + 30 * 60
+            const seizeHeure = 16 * 3600
+            const neufHeure = 9 * 3600
+            const minuit = 24 * 3600
+            let maintenant = new Date()
+            const debutDuJour = new Date(
+                maintenant.getFullYear(),
+                maintenant.getMonth(),
+                maintenant.getDate(),
+            )
+            //On récupère le nombre de secondes depuis le début du jour
+            const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
+
+            //let tempsRestant = 0
+            let tempsAQuitte = 0
+            //Si on est entre 11h et 13h30h
+            if (
+                secondesDepuisDebutJour >= onzeHeure &&
+                secondesDepuisDebutJour < treizeHeureTrente
+            ) {
+                //tempsRestant = treizeHeureTrente - secondesDepuisDebutJour
+                tempsAQuitte = treizeHeureTrente
+            }
+            //Si on est entre 16h et minuit
+            else if (secondesDepuisDebutJour >= seizeHeure && secondesDepuisDebutJour < minuit) {
+                //tempsRestant = 'demain'
+                tempsAQuitte = minuit + neufHeure + 3600
+            }
+            //Si on est entre minuit et 9h
+            else if (secondesDepuisDebutJour <= neufHeure && secondesDepuisDebutJour >= 0) {
+                //tempsRestant = (neufHeure + 3600) - secondesDepuisDebutJour
+
+                tempsAQuitte = neufHeure + 3600
+            }
+            //Si on est dans peut importe quel autre cas, on met 1h
+            else {
+                //tempsRestant = 3600
+                tempsAQuitte = secondesDepuisDebutJour + 3600
+            }
+            return tempsAQuitte
+        },
+
+        /**
+         * Fonction pour faire apparaitre l'alerte de succès
+         */
+        showSuccessAlert() {
+            this.successAlert = true
+            // Hide the alert after 5 seconds
+            setTimeout(() => {
+                this.successAlert = false
+            }, 3000)
+        },
     },
 }
 </script>
