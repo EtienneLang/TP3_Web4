@@ -18,7 +18,10 @@
                     <td>{{ user.voiture.modele }}</td>
                     <td>{{ user.voiture.plaque }}</td>
                     <td>{{ user.voiture.couleur }}</td>
-                    <td>{{ user.voiture.timeToLeave }}</td>
+                    <td v-if="user.voiture.timeToLeave >= 57600">Demain</td>
+                    <td v-else-if="user.voiture.timeToLeave >= 0">{{ user.voiture.timeToLeave }}</td>
+                    <td class="text-danger" v-else>Temps écoulé</td>
+                    <td><div @click="ConfirmPosition(user._id,latlng[user._id].lat,latlng[user._id].lng, map)">Bouger la voiture</div></td>
                 </tr>
             </tbody>
         </table>
@@ -26,12 +29,11 @@
 </template>
 
 <script>
-import Cookies from 'js-cookie'
 import axios from 'axios'
 import L from 'leaflet'
-import redPin from '../../img/pin.png'
 import carPin from '../../img/car.png'
-
+import Cookies from 'js-cookie'
+import {ConfirmPosition} from '../../utils.js'
 export default {
     props: {
         user: {
@@ -47,6 +49,7 @@ export default {
         return {
             usersRelatedToValet: [],
             intervalId: null,
+            latlng: {},
         }
     },
     async mounted() {
@@ -56,6 +59,10 @@ export default {
             console.log(users.data.users)
             for (const user of users.data.users) {
                 if (user.voiture.valet === this.user._id) {
+                    this.latlng[user._id] = {
+                        lat: user.voiture.latitude,
+                        lng: user.voiture.longitude,
+                    } 
                     let maintenant = new Date()
                     const debutDuJour = new Date(
                         maintenant.getFullYear(),
@@ -63,7 +70,10 @@ export default {
                         maintenant.getDate(),
                     )
                     const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
-                    user.voiture.timeToLeave = user.voiture.timeToLeave - secondesDepuisDebutJour
+                    // Si le temps restant est supérieur à 16h, on laisse le vrai temps restant pour pouvoir afficher Demain (A REVOIR)
+                    if (user.voiture.timeToLeave <= 57600) {
+                        user.voiture.timeToLeave = user.voiture.timeToLeave - secondesDepuisDebutJour
+                    } 
                     this.usersRelatedToValet.push(user)
                     var marker = L.marker([user.voiture.latitude, user.voiture.longitude], {
                         draggable: 'true',
@@ -88,6 +98,7 @@ export default {
                         )
                         .openPopup()
                 }
+                console.log(this.latlng)
             }
         } catch (error) {
             console.log(error)
@@ -105,6 +116,7 @@ export default {
                 }
             })
         },
+        ConfirmPosition,
     },
 }
 </script>

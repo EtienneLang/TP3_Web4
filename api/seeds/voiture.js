@@ -10,7 +10,7 @@ module.exports = [
         isMoving: false,
         latitude: 46.791027,
         longitude: -71.265445,
-        timeToLeave: 0,
+        timeToLeave: 32400, // 9h00
     },
     {
         _id: "655b939c3173af5ac257f334",
@@ -36,7 +36,7 @@ module.exports = [
         isMoving: false,
         latitude: 46.792180,
         longitude: -71.266599,
-        timeToLeave: 0,
+        timeToLeave: 42300, // 11h45
     },
     {
         _id: "655b939c3173af5ac257f336",
@@ -49,7 +49,7 @@ module.exports = [
         isMoving: false,
         latitude: 46.792745,
         longitude: -71.262660,
-        timeToLeave: 0,
+        timeToLeave: 59400, // 16h30
     },
     {
         _id: "655b939c3173af5ac257f337",
