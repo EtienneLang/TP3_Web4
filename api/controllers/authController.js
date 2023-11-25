@@ -24,16 +24,12 @@ exports.login = async (req, res, next) => {
     // On regarde si l'utilisateur existe
     const user = await User.findOne({ email });
     if (!user) {
-      const error = new Error("User not found");
-      error.statusCode = 401;
-      throw error;
+      return res.status(401).json({ success: false, message: "Ce courriel n'existe pas" });
     }
     // On compare les mots de passe
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      const error = new Error("Incorrect password");
-      error.statusCode = 401;
-      throw error;
+      return res.status(401).json({ success: false, message: "Mot de passe incorrect" });
     }
 
     // On génère le token JWT

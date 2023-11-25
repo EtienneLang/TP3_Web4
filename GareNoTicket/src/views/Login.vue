@@ -26,6 +26,7 @@
                                     required
                                 />
                             </div>
+                            <div class="text-danger">{{ messageErreur }}</div>
                             <button type="submit" class="btn btn-primary">Login</button>
                         </form>
                     </div>
@@ -44,6 +45,7 @@ export default {
         return {
             email: '',
             password: '',
+            messageErreur: '',
         }
     },
     methods: {
@@ -57,8 +59,14 @@ export default {
                     Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/')
                 }
+                
             } catch (error) {
-                console.error(error)
+                if (error.response.status === 401) {
+                    this.messageErreur = error.response.data.message
+                }
+                else {
+                    console.error(error)
+                }
             }
         },
     },
