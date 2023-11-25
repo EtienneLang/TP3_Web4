@@ -1,18 +1,21 @@
 <template>
     <div>
         <div class="d-flex flex-column align-items-center justify-content-center">
-            <h3>Historique des factures</h3>
+            <h3>Historique des déplacements</h3>
             <table class="table table-bordered table-hover w-50">
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Prix</th>
+                    <th>Payé</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="historiqueItem in historique" :key="historiqueItem.id">
                     <td>{{ historiqueItem.createdAt }}</td>
                     <td>{{ historiqueItem.price/100 + "$" }}</td>
+                    <td v-if="historiqueItem.isPaid">Oui</td>
+                    <td v-else>Non</td>
                 </tr>
             </tbody>
         </table>
