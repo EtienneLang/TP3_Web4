@@ -2,7 +2,8 @@ const Histo = require('../models/historique');
 const Facture = require('../models/facture');
 
 exports.getHistorique = async (req, res, next) => {
-  const userId = req.user.userId;
+  console.log(req.userId)
+  const userId = req.userId;
   console.log('userId', userId)
   try {
     const histo = await Histo
