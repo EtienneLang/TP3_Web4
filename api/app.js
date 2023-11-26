@@ -37,10 +37,6 @@ app.use(historiqueRoutes);
 app.use(seed);
 
 
-
-
-
-
 mongoose
   .connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
