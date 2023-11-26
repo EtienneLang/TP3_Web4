@@ -85,8 +85,8 @@ export default {
                 console.error('Error fetching user data:', error)
             }
         }
-        this.mapInit()
-        this.markerInit()
+        await this.mapInit()
+        await this.markerInit()
     },
     methods: {
         /**
@@ -120,6 +120,7 @@ export default {
                 })
                 let latitude = position.coords.latitude
                 let longitude = position.coords.longitude
+                console.log('markerInit', latitude, longitude)
                 //Si l'utilisateur est stationné et n'est pas un valet, on affiche sa voiture et non sa position actuelle
                 if (!this.user.isValet && this.user.voiture.isParked) {
                     console.log('Je suis parké')
@@ -160,6 +161,7 @@ export default {
          */
         beforeDestroy() {
             this.clearMap()
+            this.map.remove()
         },
         /**
          * Supprime tous les marqueurs de la carte

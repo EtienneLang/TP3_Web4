@@ -27,7 +27,6 @@
 <script>
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { toRefs } from 'vue'
 export default {
     name: 'TableauHistorique',
     data() {

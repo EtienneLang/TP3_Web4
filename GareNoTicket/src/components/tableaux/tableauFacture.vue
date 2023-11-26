@@ -24,9 +24,9 @@
 <script>
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { toRefs } from 'vue'
 export default {
     name: 'TableauFacture',
+
     data() {
         return {
             facture: [],
