@@ -19,9 +19,13 @@
                     <td>{{ user.voiture.plaque }}</td>
                     <td>{{ user.voiture.couleur }}</td>
                     <td v-if="user.voiture.timeToLeave >= 57600">Demain</td>
-                    <td v-else-if="user.voiture.timeToLeave >= 0">{{ user.voiture.timeToLeave }}</td>
+                    <td v-else-if="user.voiture.timeToLeave >= 0">
+                        {{ user.voiture.timeToLeave }}
+                    </td>
                     <td class="text-danger" v-else>Temps écoulé</td>
-                    <td><div @click="ConfirmPosition">Bouger la voiture</div></td>
+                    <td>
+                        <div @click="ConfirmPosition" :id="user._id">Bouger la voiture</div>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -56,12 +60,13 @@ export default {
         try {
             const users = await axios.get('http://localhost:3000/users')
             console.log(users.data.users)
+            //A changer pour aller chercher les donnée directement, mauvaise pratique de faire un for
             for (const user of users.data.users) {
                 if (user.voiture.valet === this.user._id) {
                     this.latlng[user._id] = {
                         lat: user.voiture.latitude,
                         lng: user.voiture.longitude,
-                    } 
+                    }
                     let maintenant = new Date()
                     const debutDuJour = new Date(
                         maintenant.getFullYear(),
@@ -71,8 +76,9 @@ export default {
                     const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
                     // Si le temps restant est supérieur à 16h, on laisse le vrai temps restant pour pouvoir afficher Demain (A REVOIR)
                     if (user.voiture.timeToLeave <= 57600) {
-                        user.voiture.timeToLeave = user.voiture.timeToLeave - secondesDepuisDebutJour
-                    } 
+                        user.voiture.timeToLeave =
+                            user.voiture.timeToLeave - secondesDepuisDebutJour
+                    }
                     this.usersRelatedToValet.push(user)
                     var marker = L.marker([user.voiture.latitude, user.voiture.longitude], {
                         draggable: 'true',
@@ -96,6 +102,8 @@ export default {
                                 user.voiture.plaque,
                         )
                         .openPopup()
+                    marker.on({ dragend: this.onMarkerDragEnd })
+                    marker.id = user._id
                 }
                 console.log(this.latlng)
             }
@@ -110,10 +118,76 @@ export default {
         decreaseTimeToLeave() {
             this.usersRelatedToValet.forEach((user) => {
                 if (user.voiture.timeToLeave > 0) {
-                    user.voiture.timeToLeave =
-                        user.voiture.timeToLeave  - 1
+                    user.voiture.timeToLeave = user.voiture.timeToLeave - 1
                 }
             })
+        },
+        async ConfirmPosition(e) {
+            const userId = e.target.id
+            console.log(userId)
+            let tempsAQuitter = this.determinerTempsRestant()
+
+            await axios
+                .put('http://localhost:3000/car/' + userId, {
+                    latitude: this.latlng[userId].lat,
+                    longitude: this.latlng[userId].lng,
+                    isParked: true,
+                    timeToLeave: tempsAQuitter,
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+        },
+        onMarkerDragEnd(event) {
+            console.log('onMarkerDragEnd : ', event.target.id)
+            this.latlng[event.target.id] = {
+                lat: event.target.getLatLng().lat,
+                lng: event.target.getLatLng().lng,
+            }
+        },
+        determinerTempsRestant() {
+            //Tout les constantes sont en secondes
+            const onzeHeure = 11 * 3600
+            const treizeHeureTrente = 13 * 3600 + 30 * 60
+            const seizeHeure = 16 * 3600
+            const neufHeure = 9 * 3600
+            const minuit = 24 * 3600
+            let maintenant = new Date()
+            const debutDuJour = new Date(
+                maintenant.getFullYear(),
+                maintenant.getMonth(),
+                maintenant.getDate(),
+            )
+            //On récupère le nombre de secondes depuis le début du jour
+            const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
+
+            //let tempsRestant = 0
+            let tempsAQuitte = 0
+            //Si on est entre 11h et 13h30h
+            if (
+                secondesDepuisDebutJour >= onzeHeure &&
+                secondesDepuisDebutJour < treizeHeureTrente
+            ) {
+                //tempsRestant = treizeHeureTrente - secondesDepuisDebutJour
+                tempsAQuitte = treizeHeureTrente
+            }
+            //Si on est entre 16h et minuit
+            else if (secondesDepuisDebutJour >= seizeHeure && secondesDepuisDebutJour < minuit) {
+                //tempsRestant = 'demain'
+                tempsAQuitte = minuit + neufHeure + 3600
+            }
+            //Si on est entre minuit et 9h
+            else if (secondesDepuisDebutJour <= neufHeure && secondesDepuisDebutJour >= 0) {
+                //tempsRestant = (neufHeure + 3600) - secondesDepuisDebutJour
+
+                tempsAQuitte = neufHeure + 3600
+            }
+            //Si on est dans peut importe quel autre cas, on met 1h
+            else {
+                //tempsRestant = 3600
+                tempsAQuitte = secondesDepuisDebutJour + 3600
+            }
+            return tempsAQuitte
         },
     },
 }
