@@ -137,6 +137,27 @@ export default {
                 .catch((error) => {
                     console.log(error)
                 })
+                
+            for (const user of this.usersRelatedToValet) {
+                if (user._id === userId) {
+                    let maintenant = new Date()
+                    const debutDuJour = new Date(
+                        maintenant.getFullYear(),
+                        maintenant.getMonth(),
+                        maintenant.getDate(),
+                    )
+                    user.voiture.latitude = this.latlng[userId].lat
+                    user.voiture.longitude = this.latlng[userId].lng
+                    user.voiture.isParked = true
+                    user.voiture.timeToLeave = tempsAQuitter
+                    const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
+                    // Si le temps restant est supérieur à 16h, on laisse le vrai temps restant pour pouvoir afficher Demain (A REVOIR)
+                    if (user.voiture.timeToLeave <= 57600) {
+                        user.voiture.timeToLeave =
+                            user.voiture.timeToLeave - secondesDepuisDebutJour
+                    }
+                }
+            }
         },
         onMarkerDragEnd(event) {
             console.log('onMarkerDragEnd : ', event.target.id)
