@@ -1,4 +1,5 @@
 <template>
+    <Alert :alert="alert" />
     <div class="container">
         <h1 class="p-3 text-center">Transaction</h1>
         <div class="text-center">
@@ -14,7 +15,13 @@
                         </p>
                     </div>
                 </div>
-                <button :disabled="prixTotal <= 0" @click="payerFacture" class="btn btn-primary m-3">Payer ma facture</button>
+                <button
+                    :disabled="prixTotal <= 0"
+                    @click="payerFacture"
+                    class="btn btn-primary m-3"
+                >
+                    Payer ma facture
+                </button>
             </div>
             <p v-if="prixTotal >= 20" class="text-danger">
                 Vous devez payer votre facture, sinon le service vous est coupé!
@@ -31,12 +38,14 @@ import Cookies from 'js-cookie'
 import axios from 'axios'
 import TableauFacture from '../components/tableaux/tableauFacture.vue'
 import TableauHistorique from '../components/tableaux/tableauHistorique.vue'
+import Alert from '../components/alert.vue'
 export default {
     name: 'Transaction',
-    components: { TableauFacture, TableauHistorique },
+    components: { TableauFacture, TableauHistorique, Alert },
     data() {
         return {
             prixTotal: 0,
+            alert: null,
         }
     },
     async mounted() {
@@ -51,12 +60,25 @@ export default {
     methods: {
         async payerFacture() {
             const JWT = Cookies.get('token')
-            await axios.get('http://localhost:3000/effectuerPaiement', {
-                headers: {
-                    Authorization: `Bearer ${JWT}`,
-                },
-            })
-            this.prixTotal = 0;
+            try {
+                await axios.get('http://localhost:3000/effectuerPaiement', {
+                    headers: {
+                        Authorization: `Bearer ${JWT}`,
+                    },
+                })
+                this.prixTotal = 0
+                this.showAlert('success')
+            } catch (error) {
+                console.error(error)
+                this.showAlert('error')
+            }
+        },
+        showAlert(text) {
+            this.alert = text
+            // Cache l'alerte après 3 secondes
+            setTimeout(() => {
+                this.alert = null
+            }, 3000)
         },
     },
 }

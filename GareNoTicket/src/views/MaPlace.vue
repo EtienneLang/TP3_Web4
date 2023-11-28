@@ -1,15 +1,7 @@
 <template>
+    <Alert :alert="alert" />
     <!-- Alert de succès -->
-    <div v-if="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
-        L'action a été effectuée avec succès !
-        <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"
-            aria-label="Close"
-            @click="hideSuccessAlert"
-        ></button>
-    </div>
+    
     <div class="d-flex flex-column justify-content-center align-items-center">
         <h2 class="p-2">Carte - <i>Ma place</i></h2>
         <div id="map"></div>
@@ -53,9 +45,10 @@ import { toRefs } from 'vue'
 import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
 import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
+import Alert from '../components/alert.vue'
 
 export default {
-    components: { TableauVoituresValet },
+    components: { TableauVoituresValet, Alert },
     data() {
         return {
             confirmationPopUp: false,
@@ -63,7 +56,7 @@ export default {
             user: {},
             map: null,
             isParked: false,
-            successAlert: false,
+            alert: null,
         }
     },
     async mounted() {
@@ -228,10 +221,11 @@ export default {
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/maplace')
                     this.isParked = false
-                    this.showSuccessAlert()
+                    this.showAlert('success')
                 }
             } catch (error) {
                 console.error(error)
+                this.showAlert('error')
             }
         },
         /**
@@ -274,10 +268,11 @@ export default {
                     this.map.panTo(marker.getLatLng())
                     this.$router.push('/maplace')
                     this.isParked = true
-                    this.showSuccessAlert()
+                    this.showAlert('success')
                 }
             } catch (error) {
                 console.error(error)
+                this.showAlert('error')
             }
         },
         determinerTempsRestant() {
@@ -326,13 +321,13 @@ export default {
         },
 
         /**
-         * Fonction pour faire apparaitre l'alerte de succès
+         * Fonction pour faire apparaitre l'alerte
          */
-        showSuccessAlert() {
-            this.successAlert = true
-            // Hide the alert after 5 seconds
+         showAlert(text) {
+            this.alert = text
+            // Cache l'alerte après 3 secondes
             setTimeout(() => {
-                this.successAlert = false
+                this.alert = null
             }, 3000)
         },
     },
