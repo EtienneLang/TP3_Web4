@@ -51,7 +51,7 @@ export default {
     methods: {
         async login() {
             try {
-                const response = await axios.post('http://localhost:3000/auth/login', {
+                const response = await axios.post('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/auth/login', {
                     email: this.email,
                     password: this.password,
                 })
