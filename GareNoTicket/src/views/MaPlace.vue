@@ -64,7 +64,7 @@ export default {
         console.log(JWT)
         if (JWT) {
             try {
-                const response = await axios.get('http://localhost:3000/user', {
+                const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },
@@ -198,7 +198,7 @@ export default {
             try {
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    'http://localhost:3000/car/' + this.user._id,
+                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' + this.user._id,
                     {
                         latitude: null,
                         longitude: null,
@@ -238,7 +238,7 @@ export default {
                 console.log(tempsAQuitter)
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    'http://localhost:3000/car/' + userId,
+                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' + userId,
                     {
                         latitude: this.latlng.lat,
                         longitude: this.latlng.lng,

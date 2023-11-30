@@ -36,7 +36,7 @@ export default {
         const JWT = Cookies.get('token')
         if (JWT) {
             try {
-                const response = await axios.get('http://localhost:3000/facture', {
+                const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/facture', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },

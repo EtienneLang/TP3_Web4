@@ -100,7 +100,7 @@ export default {
         async submitForm() {
             const JWT = Cookies.get("token");
             try {
-                const response = await axios.put("http://localhost:3000/user/" + this.user._id, {
+                const response = await axios.put("https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user/" + this.user._id, {
                     username: this.user.username,
                     email: this.user.email,
                     price: this.user.price,

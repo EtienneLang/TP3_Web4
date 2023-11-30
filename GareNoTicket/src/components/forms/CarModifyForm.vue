@@ -143,7 +143,7 @@ export default {
             try {
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    'http://localhost:3000/car/' + this.user._id,
+                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' + this.user._id,
                     {
                         marque: this.user.voiture.marque,
                         modele: this.user.voiture.modele,

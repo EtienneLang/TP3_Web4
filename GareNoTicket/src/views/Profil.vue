@@ -48,7 +48,7 @@ export default {
         const JWT = Cookies.get('token')
         if (JWT) {
             try {
-                const response = await axios.get('http://localhost:3000/user', {
+                const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },
@@ -67,7 +67,7 @@ export default {
             const confirmed = confirm('Are you sure you want to delete your account?')
             if (confirmed) {
                 try {
-                    const response = await axios.delete('http://localhost:3000/user/', {
+                    const response = await axios.delete('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user/', {
                         headers: {
                             Authorization: `Bearer ${JWT}`,
                         },

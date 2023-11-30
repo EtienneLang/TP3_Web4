@@ -50,7 +50,7 @@ export default {
     },
     async mounted() {
         const JWT = Cookies.get('token')
-        const response = await axios.get('http://localhost:3000/totalAPayer', {
+        const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/totalAPayer', {
             headers: {
                 Authorization: `Bearer ${JWT}`,
             },
@@ -61,7 +61,7 @@ export default {
         async payerFacture() {
             const JWT = Cookies.get('token')
             try {
-                await axios.get('http://localhost:3000/effectuerPaiement', {
+                await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/effectuerPaiement', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },

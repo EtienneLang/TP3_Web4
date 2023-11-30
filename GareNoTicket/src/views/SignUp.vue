@@ -145,7 +145,7 @@ export default {
                 !this.error.confirmPassword
             ) {
                 try {
-                    const response = await axios.post('api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/auth/signup', {
+                    const response = await axios.post('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/auth/signup', {
                         username: this.username,
                         email: this.email,
                         password: this.password,

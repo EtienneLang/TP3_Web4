@@ -58,7 +58,7 @@ export default {
     async mounted() {
         this.intervalId = setInterval(this.decreaseTimeToLeave, 1000)
         try {
-            const users = await axios.get('http://localhost:3000/users')
+            const users = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/users')
             console.log(users.data.users)
             //A changer pour aller chercher les donnée directement, mauvaise pratique de faire un for
             for (const user of users.data.users) {
@@ -128,7 +128,7 @@ export default {
             let tempsAQuitter = this.determinerTempsRestant()
 
             await axios
-                .put('http://localhost:3000/car/' + userId, {
+                .put('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' + userId, {
                     latitude: this.latlng[userId].lat,
                     longitude: this.latlng[userId].lng,
                     isParked: true,
