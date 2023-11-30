@@ -6,6 +6,8 @@ import ProfilView from '../views/Profil.vue'
 import MaplaceView from '../views/MaPlace.vue'
 import UserModifyView from '../components/forms/UserModifyForm.vue'
 import CarModifyView from '../components/forms/CarModifyForm.vue'
+import Cookies from 'js-cookie'
+import { jwtDecode } from "jwt-decode";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,6 +53,43 @@ const router = createRouter({
       component: () => import('../views/Transaction.vue')
     }
   ]
-})
+});
+
+
+router.beforeEach(async (to, from, next) => {
+  const pagesPu = ['/login', '/signup', '/'];
+  const authRequired = !publicPages.includes(to.path);
+
+  const token = Cookies.get('token')
+
+  console.log("token", token);
+
+  if (authRequired && !token) {
+    return next('/login');
+  }
+
+  if (authRequired) {
+    // Verify the JWT
+    try {
+      const decoded = jwtDecode(token);
+      console.log(decoded);
+      // Check the expiration date
+      if (decoded.exp * 1000 < Date.now()) {
+        // Token expired
+        Cookies.remove('token');
+        return next('/login');
+      }
+
+      // Token is valid
+      next();
+    } catch (error) {
+      // Token is invalid
+      return next('/login');
+    }
+  } else {
+    next();
+  }
+});
 
 export default router
+

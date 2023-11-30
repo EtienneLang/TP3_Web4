@@ -113,10 +113,8 @@ export default {
                 })
                 let latitude = position.coords.latitude
                 let longitude = position.coords.longitude
-                console.log('markerInit', latitude, longitude)
                 //Si l'utilisateur est stationné et n'est pas un valet, on affiche sa voiture et non sa position actuelle
                 if (!this.user.isValet && this.user.voiture.isParked) {
-                    console.log('Je suis parké')
                     latitude = this.user.voiture.latitude
                     longitude = this.user.voiture.longitude
                     var marker = L.marker([latitude, longitude], {
