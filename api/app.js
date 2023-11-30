@@ -39,11 +39,6 @@ app.use(seed);
 
 mongoose
   .connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log('Node.js est à l\'écoute sur le port %s ', PORT);
-    });
-  })
   .catch(err => console.log(err));
 
 module.exports = app;
