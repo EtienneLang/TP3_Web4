@@ -5,7 +5,7 @@
                 <h1>
                     <i>Gare<strong>NoTicket</strong></i>
                 </h1>
-                <p>Le premier site d'aide au stationnements pour les étudiants du cégep.</p>
+                <p>Le premier site d'aide aux stationnements pour les étudiants du cégep.</p>
             </div>
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <p class="fs-3">Pour commencer</p>
