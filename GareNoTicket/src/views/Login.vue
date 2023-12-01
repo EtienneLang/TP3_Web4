@@ -58,11 +58,13 @@ export default {
                 })
                 if (response.status === 200) {
                     Cookies.set('token', response.data.token, { expires: 1 })
-                    this.$router.push('/')
+                    this.$router.push('/maplace')
                 }
                 
             } catch (error) {
+                console.log(error)
                 if (error.response.status === 401) {
+                    console.log(error.response)
                     this.messageErreur = error.response.data.message
                 }
                 else {

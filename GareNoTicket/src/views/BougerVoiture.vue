@@ -3,7 +3,8 @@
     <!-- Alert de succès -->
     
     <div class="d-flex flex-column justify-content-center align-items-center">
-        <h2 class="p-2">Carte - <i>Ma place</i></h2>
+        <h2 class="p-2">Carte - <i>Bouger {{ user.username }} </i></h2>
+        <img v-if="!map" src="../img/loading.gif">
         <div id="map"></div>
         <div class="d-flex">
             <div class="button" @click="confirmPopUp">

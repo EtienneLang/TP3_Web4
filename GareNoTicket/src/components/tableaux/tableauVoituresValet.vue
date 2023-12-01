@@ -9,7 +9,8 @@
                     <th scope="col">Plaque</th>
                     <th scope="col">Couleur</th>
                     <th scope="col">Temps restant</th>
-                    <th scope="col">Action</th>
+                    <th scope="col">Bouger la voiture</th>
+                    <th scope="col">Voir la voiture</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,8 +26,9 @@
                     </td>
                     <td class="text-danger" v-else>Temps écoulé</td>
                     <td>
-                        <RouterLink class="nav-link" :to="'/bougerVoiture/' + user._id">Transaction</RouterLink>
+                        <RouterLink class="nav-link" :to="'/bougerVoiture/' + user._id"><img class="img-tab" src='../../img/cle.png'></RouterLink>
                     </td>
+                    <td><img class="img-tab" src="../../img/map.png" alt="" @click="centerVehiculeMap(user.voiture)"></td>
                 </tr>
             </tbody>
         </table>
@@ -39,6 +41,7 @@ import L from 'leaflet'
 import carPin from '../../img/car.png'
 import Cookies from 'js-cookie'
 import {URL_API} from '../../../const'
+import imgCle from '../../img/cle.png'
 
 export default {
     props: {
@@ -56,6 +59,7 @@ export default {
             usersRelatedToValet: [],
             intervalId: null,
             latlng: {},
+            imgCle: imgCle
         }
     },
     async mounted() {
@@ -169,6 +173,9 @@ export default {
                 lng: event.target.getLatLng().lng,
             }
         },
+        centerVehiculeMap(voiture) {
+            this.map.setView(new L.LatLng(voiture.latitude, voiture.longitude), 17)    
+        },
         determinerTempsRestant() {
             //Tout les constantes sont en secondes
             const onzeHeure = 11 * 3600
@@ -218,5 +225,8 @@ export default {
 </script>
 
 <style>
-/* Add any custom styles for the table here */
+.img-tab {
+    width: 50px;
+    height: 50px;
+}
 </style>

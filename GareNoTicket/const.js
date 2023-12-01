@@ -1,1 +1,1 @@
-export const URL_API = "http://api-garenoticket-golsh0u7g-etiennelanglois-projects.vercel.app"
+export const URL_API = "https://api-garenoticket-q2bfez2b2-etiennelanglois-projects.vercel.app"
