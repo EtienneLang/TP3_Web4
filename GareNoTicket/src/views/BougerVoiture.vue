@@ -6,11 +6,11 @@
         <h2 class="p-2">Carte - <i>Ma place</i></h2>
         <div id="map"></div>
         <div class="d-flex">
-            <div v-if="!isParked && !user.isValet" class="button" @click="confirmPopUp">
-                Je laisse ma voiture
+            <div class="button" @click="confirmPopUp">
+                Validation du stationnement
             </div>
-            <div v-if="isParked && !user.isValet" class="button" @click="recupereVoiture">
-                J'ai récupéré ma voiture
+            <div class="button" @click="recupereVoiture">
+                Je déplace la voiture
             </div>
         </div>
 
@@ -32,7 +32,6 @@
                 <div class="btn btn-danger m-2" @click="AnnulerConfirmation">Annuler</div>
             </div>
         </div>
-        <TableauVoituresValet :map="map" :user="user" v-if="user.isValet" class="w-75 m-5" />
     </div>
 </template>
 
@@ -48,18 +47,20 @@ import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vu
 import Alert from '../components/alert.vue'
 
 export default {
-    components: { TableauVoituresValet, Alert },
+    components: { Alert },
     data() {
         return {
             confirmationPopUp: false,
             latlng: null,
-            user: {},
+            loggeduser: null,
+            user: null,
             map: null,
             isParked: false,
             alert: null,
         }
     },
     async mounted() {
+        const userId = this.$route.params.userId
         const JWT = Cookies.get('token')
         console.log(JWT)
         if (JWT) {
@@ -69,14 +70,19 @@ export default {
                         Authorization: `Bearer ${JWT}`,
                     },
                 })
-                const { user } = toRefs(response.data)
-                this.user = user
-                if (!this.user.isValet && this.user.voiture.isParked) {
-                    this.isParked = true
-                }
+                const { loggeduser } = toRefs(response.data)
+                this.loggeduser = loggeduser
             } catch (error) {
                 console.error('Error fetching user data:', error)
             }
+        }
+        try {
+            const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user/' + userId)
+            const { user } = toRefs(response.data)
+            this.user = user
+            console.log(this.user)
+        } catch (error) {
+            console.error('Error fetching user data:', error)
         }
         await this.mapInit()
         await this.markerInit()
@@ -113,23 +119,7 @@ export default {
                 })
                 let latitude = position.coords.latitude
                 let longitude = position.coords.longitude
-                //Si l'utilisateur est stationné et n'est pas un valet, on affiche sa voiture et non sa position actuelle
-                if (!this.user.isValet && this.user.voiture.isParked) {
-                    latitude = this.user.voiture.latitude
-                    longitude = this.user.voiture.longitude
-                    var marker = L.marker([latitude, longitude], {
-                        icon: L.icon({
-                            iconUrl: carPin,
-                            iconSize: [41, 41],
-                            iconAnchor: [20.5, 41],
-                            popupAnchor: [1, -34],
-                        }),
-                    }).addTo(this.map)
-                    marker.bindPopup('<b>Votre voiture</b>').openPopup()
-                    this.map.panTo(marker.getLatLng())
-                }
-                // Sinon on affiche la position de l'utilisateur
-                else {
+                // On affiche la position du valet
                     var marker = L.marker([latitude, longitude], {
                         draggable: 'true',
                         icon: L.icon({
@@ -142,7 +132,6 @@ export default {
                     marker.bindPopup('<b>Votre position.</b>').openPopup()
                     marker.on({ dragend: this.onMarkerDragEnd })
                     this.map.panTo(marker.getLatLng())
-                }
             } catch (error) {
                 console.error(error)
             }

@@ -9,6 +9,7 @@
                     <th scope="col">Plaque</th>
                     <th scope="col">Couleur</th>
                     <th scope="col">Temps restant</th>
+                    <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -24,7 +25,7 @@
                     </td>
                     <td class="text-danger" v-else>Temps écoulé</td>
                     <td>
-                        <div @click="ConfirmPosition" :id="user._id">Bouger la voiture</div>
+                        <RouterLink class="nav-link" :to="'/bougerVoiture/' + user._id">Transaction</RouterLink>
                     </td>
                 </tr>
             </tbody>

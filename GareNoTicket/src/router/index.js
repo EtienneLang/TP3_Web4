@@ -49,6 +49,11 @@ const router = createRouter({
             component: MaplaceView,
         },
         {
+            path: '/bougerVoiture/:userId',
+            name: 'bougerVoiture',
+            component: () => import('../views/BougerVoiture.vue'),
+        },
+        {
             path: '/transaction',
             name: 'transaction',
             component: () => import('../views/Transaction.vue'),
@@ -56,7 +61,7 @@ const router = createRouter({
         {
             path: '/:notFound(.*)',
             component: NotFound,
-        }
+        },
     ],
 })
 
