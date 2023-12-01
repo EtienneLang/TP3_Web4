@@ -1,36 +1,17 @@
 <template>
     <Alert :alert="alert" />
     <!-- Alert de succès -->
-    
-    <div class="d-flex flex-column justify-content-center align-items-center">
-        <h2 class="p-2">Carte - <i>Bouger {{ user.username }} </i></h2>
-        <img v-if="!map" src="../img/loading.gif">
-        <div id="map"></div>
-        <div class="d-flex">
-            <div class="button" @click="confirmPopUp">
-                Validation du stationnement
-            </div>
-            <div class="button" @click="recupereVoiture">
-                Je déplace la voiture
-            </div>
-        </div>
 
-        <!-- Carte de confirmation du stationnement -->
-        <div v-if="confirmationPopUp" class="card w-50 mb-5">
-            <div class="card-header">
-                <h3>Confirmation</h3>
-            </div>
-            <div class="card-body">
-                <p>
-                    Veuillez vérifier que votre voiture est bien stationnée à l'endroit indiqué sur
-                    la carte, ou déplacer le marqueur sur la position de votre voiture.
-                </p>
-            </div>
-            <div class="card-footer">
-                <div class="btn btn-success m-2" @click="ConfirmPosition(user._id)">
-                    Je confirme
-                </div>
-                <div class="btn btn-danger m-2" @click="AnnulerConfirmation">Annuler</div>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <h2 class="p-2">
+            Carte - <i>Bouger une voiture </i>
+        </h2>
+        <img v-if="!map" src="../img/loading.gif" />
+        <div id="map"></div>
+        <div v-if="map">
+            <div class="d-flex">
+                <button class="button" @click="deplacerVoiture">Je déplace la voiture</button>
+                <!-- <div class="button" @click="confirmPopUp">Validation du stationnement</div> -->
             </div>
         </div>
     </div>
@@ -46,7 +27,7 @@ import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
 import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
 import Alert from '../components/alert.vue'
-import {URL_API} from '../../const'
+import { URL_API } from '../../const'
 
 export default {
     components: { Alert },
@@ -101,7 +82,10 @@ export default {
                 })
                 let latitude = position.coords.latitude
                 let longitude = position.coords.longitude
-                this.map = L.map('map',{_zoomAnimation:false}).setView([latitude, longitude], 13)
+                this.map = L.map('map', { _zoomAnimation: false }).setView(
+                    [latitude, longitude],
+                    13,
+                )
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution:
@@ -112,7 +96,7 @@ export default {
             }
         },
         /**
-         * Initialise le marqueur de l'utilisateur
+         * Initialise le marqueur du valet et de l'utilisateur
          */
         async markerInit() {
             try {
@@ -123,29 +107,29 @@ export default {
                 let latitude = position.coords.latitude
                 let longitude = position.coords.longitude
                 // On affiche la position du valet
-                    var marker = L.marker([latitude, longitude], {
-                        draggable: 'true',
-                        icon: L.icon({
-                            iconUrl: redPin,
-                            iconSize: [41, 41],
-                            iconAnchor: [20.5, 41],
-                            popupAnchor: [1, -34],
-                        }),
-                    }).addTo(this.map)
-                    marker.bindPopup('<b>Votre position.</b>').openPopup()
-                    marker.on({ dragend: this.onMarkerDragEnd })
-                    this.map.panTo(marker.getLatLng())
-                    var marker = L.marker([this.user.voiture.latitude, this.user.voiture.longitude], {
-                        draggable: 'true',
-                        icon: L.icon({
-                            iconUrl: carPin,
-                            iconSize: [41, 41],
-                            iconAnchor: [20.5, 41],
-                            popupAnchor: [1, -34],
-                        }),
-                    }).addTo(this.map)
-                    marker.bindPopup('<b>Voiture de ' + this.user.username + '</b>').openPopup()
-                    marker.on({ dragend: this.onMarkerDragEnd })
+                var marker = L.marker([latitude, longitude], {
+                    draggable: 'true',
+                    icon: L.icon({
+                        iconUrl: redPin,
+                        iconSize: [41, 41],
+                        iconAnchor: [20.5, 41],
+                        popupAnchor: [1, -34],
+                    }),
+                }).addTo(this.map)
+                marker.bindPopup('<b>Votre position.</b>').openPopup()
+                marker.on({ dragend: this.onMarkerDragEnd })
+                this.map.panTo(marker.getLatLng())
+                var marker = L.marker([this.user.voiture.latitude, this.user.voiture.longitude], {
+                    draggable: 'true',
+                    icon: L.icon({
+                        iconUrl: carPin,
+                        iconSize: [41, 41],
+                        iconAnchor: [20.5, 41],
+                        popupAnchor: [1, -34],
+                    }),
+                }).addTo(this.map)
+                marker.bindPopup('<b>Voiture de ' + this.user.username + '</b>').openPopup()
+                marker.on({ dragend: this.onMarkerDragEnd })
             } catch (error) {
                 console.error(error)
             }
@@ -179,54 +163,22 @@ export default {
             // Update marker coordinates when dragged
         },
         /**
-         * Fonction pour afficher l'alerte de confirmation
-         */
-        confirmPopUp() {
-            console.log('confirmMove')
-            this.confirmationPopUp = true
-        },
-        /**
-         * Fonction pour faire disparaitre l'alerte de confirmation
-         */
-        AnnulerConfirmation() {
-            console.log('AnnulerConfirmation')
-            this.confirmationPopUp = false
-        },
-        /**
          * Fonction pour récuperer la voiture
          */
-        async recupereVoiture() {
-            const JWT = Cookies.get('token')
-            console.log('recupereVoiture', this.user._id)
+        async deplacerVoiture() {
             try {
-                //On envoie les données de la voiture à l'API
                 const response = await axios.put(
                     URL_API + '/car/' + this.user._id,
                     {
-                        latitude: null,
-                        longitude: null,
-                        isParked: false,
-                        timeToLeave: null,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${JWT}`,
-                        },
+                        isMoving: true,
                     },
                 )
                 if (response.status === 200) {
-                    console.log(this.user.voiture.isParked)
-                    this.clearMap()
-                    this.user.voiture.isParked = false
-                    await this.markerInit()
-                    //Cookies.set('token', response.data.token, { expires: 1 })
-                    this.$router.push('/maplace')
-                    this.isParked = false
-                    this.showAlert('success')
                 }
+                console.log('recupereVoiture', this.user.voiture.isMoving)
+
             } catch (error) {
                 console.error(error)
-                this.showAlert('error')
             }
         },
         /**
@@ -325,7 +277,7 @@ export default {
         /**
          * Fonction pour faire apparaitre l'alerte
          */
-         showAlert(text) {
+        showAlert(text) {
             this.alert = text
             // Cache l'alerte après 3 secondes
             setTimeout(() => {

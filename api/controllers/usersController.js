@@ -80,13 +80,13 @@ exports.updateCar = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const user = await User.findById(userId).populate('voiture');
+    console.log("user", user.username);
     if (!user) {
       const error = new Error('L\'utilisateur n\'existe pas.');
       error.statusCode = 404;
       throw error;
     }
-    const { marque, modele, couleur, plaque, latitude, longitude, isParked, timeToLeave } = req.body;
-    console.log("plaques", isParked);
+    const { marque, modele, couleur, plaque, latitude, longitude, isParked, timeToLeave, isMoving } = req.body;
     if (!user.voiture) {
       const voiture = new Voiture({
         marque: marque,
@@ -97,6 +97,7 @@ exports.updateCar = async (req, res, next) => {
         longitude: longitude,
         isParked: isParked,
         timeToLeave: timeToLeave,
+        isMoving: isMoving,
       });
       await voiture.save();
       user.voiture = voiture._id;
@@ -108,8 +109,9 @@ exports.updateCar = async (req, res, next) => {
       voiture.plaque = plaque || voiture.plaque;
       voiture.latitude = latitude || voiture.latitude;
       voiture.longitude = longitude || voiture.longitude;
-      voiture.isParked = isParked;
-      voiture.timeToLeave = timeToLeave;
+      voiture.isParked = isParked || voiture.isParked;
+      voiture.timeToLeave = timeToLeave || voiture.timeToLeave;
+      voiture.isMoving = isMoving || voiture.isMoving;
       await voiture.save();
     }
     await user.save();
