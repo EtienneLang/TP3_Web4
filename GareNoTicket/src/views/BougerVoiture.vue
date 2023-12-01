@@ -134,6 +134,17 @@ export default {
                     marker.bindPopup('<b>Votre position.</b>').openPopup()
                     marker.on({ dragend: this.onMarkerDragEnd })
                     this.map.panTo(marker.getLatLng())
+                    var marker = L.marker([this.user.voiture.latitude, this.user.voiture.longitude], {
+                        draggable: 'true',
+                        icon: L.icon({
+                            iconUrl: carPin,
+                            iconSize: [41, 41],
+                            iconAnchor: [20.5, 41],
+                            popupAnchor: [1, -34],
+                        }),
+                    }).addTo(this.map)
+                    marker.bindPopup('<b>Voiture de ' + this.user.username + '</b>').openPopup()
+                    marker.on({ dragend: this.onMarkerDragEnd })
             } catch (error) {
                 console.error(error)
             }

@@ -23,7 +23,7 @@ app.use(hateoasLinker);
 
 app.use(
   cors({
-    origin: '*', // Allow all origins (you can replace '*' with your frontend's URL)
+    origin: 'http://localhost:5173', // Allow all origins (you can replace '*' with your frontend's URL)
     methods: 'OPTIONS, GET, POST, PUT, PATCH, DELETE',
     allowedHeaders: 'Content-Type, Authorization',
   })
