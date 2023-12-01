@@ -88,7 +88,6 @@ export default {
                     }
                     this.usersRelatedToValet.push(user)
                     var marker = L.marker([user.voiture.latitude, user.voiture.longitude], {
-                        draggable: 'true',
                         icon: L.icon({
                             iconUrl: carPin,
                             iconSize: [41, 41],
@@ -109,7 +108,6 @@ export default {
                                 user.voiture.plaque,
                         )
                         .openPopup()
-                    marker.on({ dragend: this.onMarkerDragEnd })
                     marker.id = user._id
                 }
                 console.log(this.latlng)
@@ -130,6 +128,7 @@ export default {
             })
         },
         async ConfirmPosition(e) {
+            //A REVÉRIFIER, PEUT ETRE SUPPRIMER PARCE QUE C'EST RENDU DANS LE BOUGERVOITURE.VUE
             const userId = e.target.id
             console.log(userId)
             let tempsAQuitter = this.determinerTempsRestant()
@@ -166,59 +165,8 @@ export default {
                 }
             }
         },
-        onMarkerDragEnd(event) {
-            console.log('onMarkerDragEnd : ', event.target.id)
-            this.latlng[event.target.id] = {
-                lat: event.target.getLatLng().lat,
-                lng: event.target.getLatLng().lng,
-            }
-        },
         centerVehiculeMap(voiture) {
             this.map.setView(new L.LatLng(voiture.latitude, voiture.longitude), 17)    
-        },
-        determinerTempsRestant() {
-            //Tout les constantes sont en secondes
-            const onzeHeure = 11 * 3600
-            const treizeHeureTrente = 13 * 3600 + 30 * 60
-            const seizeHeure = 16 * 3600
-            const neufHeure = 9 * 3600
-            const minuit = 24 * 3600
-            let maintenant = new Date()
-            const debutDuJour = new Date(
-                maintenant.getFullYear(),
-                maintenant.getMonth(),
-                maintenant.getDate(),
-            )
-            //On récupère le nombre de secondes depuis le début du jour
-            const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
-
-            //let tempsRestant = 0
-            let tempsAQuitte = 0
-            //Si on est entre 11h et 13h30h
-            if (
-                secondesDepuisDebutJour >= onzeHeure &&
-                secondesDepuisDebutJour < treizeHeureTrente
-            ) {
-                //tempsRestant = treizeHeureTrente - secondesDepuisDebutJour
-                tempsAQuitte = treizeHeureTrente
-            }
-            //Si on est entre 16h et minuit
-            else if (secondesDepuisDebutJour >= seizeHeure && secondesDepuisDebutJour < minuit) {
-                //tempsRestant = 'demain'
-                tempsAQuitte = minuit + neufHeure + 3600
-            }
-            //Si on est entre minuit et 9h
-            else if (secondesDepuisDebutJour <= neufHeure && secondesDepuisDebutJour >= 0) {
-                //tempsRestant = (neufHeure + 3600) - secondesDepuisDebutJour
-
-                tempsAQuitte = neufHeure + 3600
-            }
-            //Si on est dans peut importe quel autre cas, on met 1h
-            else {
-                //tempsRestant = 3600
-                tempsAQuitte = secondesDepuisDebutJour + 3600
-            }
-            return tempsAQuitte
         },
     },
 }

@@ -10,8 +10,8 @@
         <div id="map"></div>
         <div v-if="map">
             <div class="d-flex">
-                <button class="button" @click="deplacerVoiture">Je déplace la voiture</button>
-                <!-- <div class="button" @click="confirmPopUp">Validation du stationnement</div> -->
+                <button :disabled="user.voiture.isMoving" class="btn btn-primary p-2 m-4" @click="deplacerVoiture">Je déplace la voiture</button>
+                <button :disabled="!user.voiture.isMoving" class="btn btn-primary p-2 m-4" @click="ValiderDeplacement">Validation du stationnement</button>
             </div>
         </div>
     </div>
@@ -33,12 +33,10 @@ export default {
     components: { Alert },
     data() {
         return {
-            confirmationPopUp: false,
             latlng: null,
             loggeduser: null,
             user: null,
             map: null,
-            isParked: false,
             alert: null,
         }
     },
@@ -117,7 +115,7 @@ export default {
                     }),
                 }).addTo(this.map)
                 marker.bindPopup('<b>Votre position.</b>').openPopup()
-                marker.on({ dragend: this.onMarkerDragEnd })
+                // marker.on({ dragend: this.onMarkerDragEnd })
                 this.map.panTo(marker.getLatLng())
                 var marker = L.marker([this.user.voiture.latitude, this.user.voiture.longitude], {
                     draggable: 'true',
@@ -157,9 +155,7 @@ export default {
          */
         onMarkerDragEnd(event) {
             console.log('onMarkerDragEnd')
-            if (!this.user.voiture.isParked) {
-                this.latlng = event.target.getLatLng()
-            }
+            this.latlng = event.target.getLatLng()
             // Update marker coordinates when dragged
         },
         /**
@@ -174,9 +170,8 @@ export default {
                     },
                 )
                 if (response.status === 200) {
+                    this.user.voiture.isMoving = true;
                 }
-                console.log('recupereVoiture', this.user.voiture.isMoving)
-
             } catch (error) {
                 console.error(error)
             }
@@ -184,7 +179,7 @@ export default {
         /**
          * Fonction pour confirmer la position de la voiture
          */
-        async ConfirmPosition(userId) {
+        async ValiderDeplacement() {
             console.log(this.latlng)
             this.confirmationPopUp = false
             const JWT = Cookies.get('token')
@@ -193,11 +188,12 @@ export default {
                 console.log(tempsAQuitter)
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    URL_API + '/car/' + userId,
+                    URL_API + '/car/' + this.user._id,
                     {
                         latitude: this.latlng.lat,
                         longitude: this.latlng.lng,
                         isParked: true,
+                        isMoving: false,
                         timeToLeave: tempsAQuitter,
                     },
                     {
@@ -207,21 +203,9 @@ export default {
                     },
                 )
                 if (response.status === 200) {
-                    this.clearMap()
-                    this.markerInit()
-                    var marker = L.marker([this.latlng.lat, this.latlng.lng], {
-                        icon: L.icon({
-                            iconUrl: carPin,
-                            iconSize: [41, 41],
-                            iconAnchor: [20.5, 41],
-                            popupAnchor: [1, -34],
-                        }),
-                    }).addTo(this.map)
-                    marker.bindPopup('<b>Votre voiture</b>').openPopup()
+                    this.user.voiture.isMoving = false
+                    this.user.voiture.isParked = true
                     //Cookies.set('token', response.data.token, { expires: 1 })
-                    this.map.panTo(marker.getLatLng())
-                    this.$router.push('/maplace')
-                    this.isParked = true
                     this.showAlert('success')
                 }
             } catch (error) {
