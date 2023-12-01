@@ -46,6 +46,7 @@ import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
 import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
 import Alert from '../components/alert.vue'
+import {URL_API} from '../../const'
 
 export default {
     components: { TableauVoituresValet, Alert },
@@ -64,7 +65,7 @@ export default {
         console.log(JWT)
         if (JWT) {
             try {
-                const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user', {
+                const response = await axios.get(URL_API + '/user', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },

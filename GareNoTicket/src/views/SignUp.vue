@@ -81,6 +81,8 @@
 <script>
 import Cookies from 'js-cookie'
 import axios from 'axios'
+import {URL_API} from '../../const'
+
 export default {
     data() {
         return {
@@ -145,7 +147,7 @@ export default {
                 !this.error.confirmPassword
             ) {
                 try {
-                    const response = await axios.post('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/auth/signup', {
+                    const response = await axios.post(URL_API + '/auth/signup', {
                         username: this.username,
                         email: this.email,
                         password: this.password,

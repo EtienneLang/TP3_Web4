@@ -24,6 +24,8 @@
 <script>
 import axios from 'axios'
 import Cookies from 'js-cookie'
+import {URL_API} from '../../../const'
+
 export default {
     name: 'TableauFacture',
 
@@ -36,7 +38,7 @@ export default {
         const JWT = Cookies.get('token')
         if (JWT) {
             try {
-                const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/facture', {
+                const response = await axios.get(URL_API + '/facture', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },

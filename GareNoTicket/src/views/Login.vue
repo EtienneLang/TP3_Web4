@@ -39,6 +39,7 @@
 <script>
 import Cookies from 'js-cookie'
 import axios from 'axios'
+import {URL_API} from '../../const'
 
 export default {
     data() {
@@ -51,7 +52,7 @@ export default {
     methods: {
         async login() {
             try {
-                const response = await axios.post('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/auth/login', {
+                const response = await axios.post(URL_API + '/auth/login', {
                     email: this.email,
                     password: this.password,
                 })

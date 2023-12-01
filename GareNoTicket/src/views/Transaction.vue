@@ -39,6 +39,8 @@ import axios from 'axios'
 import TableauFacture from '../components/tableaux/tableauFacture.vue'
 import TableauHistorique from '../components/tableaux/tableauHistorique.vue'
 import Alert from '../components/alert.vue'
+import {URL_API} from '../../const'
+
 export default {
     name: 'Transaction',
     components: { TableauFacture, TableauHistorique, Alert },
@@ -50,7 +52,7 @@ export default {
     },
     async mounted() {
         const JWT = Cookies.get('token')
-        const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/totalAPayer', {
+        const response = await axios.get(URL_API + '/totalAPayer', {
             headers: {
                 Authorization: `Bearer ${JWT}`,
             },
@@ -61,7 +63,7 @@ export default {
         async payerFacture() {
             const JWT = Cookies.get('token')
             try {
-                await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/effectuerPaiement', {
+                await axios.get(URL_API + '/effectuerPaiement', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },

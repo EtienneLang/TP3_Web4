@@ -45,6 +45,7 @@ import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
 import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
 import Alert from '../components/alert.vue'
+import {URL_API} from '../../const'
 
 export default {
     components: { Alert },
@@ -65,7 +66,8 @@ export default {
         console.log(JWT)
         if (JWT) {
             try {
-                const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user', {
+                URL_API
+                const response = await axios.get(URL_API + '/user', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },
@@ -77,7 +79,7 @@ export default {
             }
         }
         try {
-            const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user/' + userId)
+            const response = await axios.get(URL_API + '/user/' + userId)
             const { user } = toRefs(response.data)
             this.user = user
             console.log(this.user)
@@ -187,7 +189,7 @@ export default {
             try {
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' + this.user._id,
+                    URL_API + '/car/' + this.user._id,
                     {
                         latitude: null,
                         longitude: null,
@@ -227,7 +229,7 @@ export default {
                 console.log(tempsAQuitter)
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' + userId,
+                    URL_API + '/car/' + userId,
                     {
                         latitude: this.latlng.lat,
                         longitude: this.latlng.lng,

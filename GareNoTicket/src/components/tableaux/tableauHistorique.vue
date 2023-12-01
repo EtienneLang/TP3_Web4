@@ -27,6 +27,8 @@
 <script>
 import axios from 'axios'
 import Cookies from 'js-cookie'
+import {URL_API} from '../../../const'
+
 export default {
     name: 'TableauHistorique',
     data() {
@@ -38,7 +40,7 @@ export default {
         const JWT = Cookies.get('token')
         if (JWT) {
             try {
-                const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/historique', {
+                const response = await axios.get(URL_API + '/historique', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },

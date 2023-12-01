@@ -37,6 +37,7 @@
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import { toRefs } from 'vue'
+import {URL_API} from '../../const'
 
 export default {
     data() {
@@ -48,7 +49,7 @@ export default {
         const JWT = Cookies.get('token')
         if (JWT) {
             try {
-                const response = await axios.get('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user', {
+                const response = await axios.get(URL_API + '/user', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },
@@ -67,7 +68,7 @@ export default {
             const confirmed = confirm('Are you sure you want to delete your account?')
             if (confirmed) {
                 try {
-                    const response = await axios.delete('https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/user/', {
+                    const response = await axios.delete(URL_API + '/user/', {
                         headers: {
                             Authorization: `Bearer ${JWT}`,
                         },
