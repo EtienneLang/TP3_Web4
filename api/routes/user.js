@@ -12,7 +12,7 @@ router.get('/users/', usersController.getUsers);
 router.get('/user/', authMiddleware, usersController.getUser);
 
 // un utilisateur avec son id /user/:id
-router.get('/user/:id', usersController.getUserById);
+router.get('/userget/:id', usersController.getUserById);
 
 // Mise à jour d'un utilisateur
 router.put('/user/:userId', usersController.updateUser);
