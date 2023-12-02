@@ -162,15 +162,13 @@ export default {
                     URL_API + '/car/' + this.user._id,
                     {
                         isMoving: true,
-                        isParked: false,
                     },
                 )
                 if (response.status === 200) {
                     useToast().success("Vous déplacez la voiture");
                     this.isMoving = true
                     this.user.voiture.isMoving = true;
-                    this.user.voiture.isParked = false;
-                    console.log(this.user.voiture.isMoving)
+                    this.user.voiture.isParked = true;
                 }
             } catch (error) {
                 useToast().error("Erreur lors du déplacement de la voiture");
@@ -189,7 +187,6 @@ export default {
                     {
                         latitude: this.latlng.lat,
                         longitude: this.latlng.lng,
-                        isParked: true,
                         isMoving: false,
                         timeToLeave: tempsAQuitter,
                     },

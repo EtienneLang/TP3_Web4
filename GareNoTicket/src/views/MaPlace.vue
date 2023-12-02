@@ -4,13 +4,14 @@
         <img v-if="!map" src="../img/loading.gif">
         <div id="map"></div>
         <div class="d-flex">
-            <div v-if="!isParked && !user.isValet" class="button" @click="confirmPopUp">
+            <button v-if="!user.isValet" :disabled="isMoving || isParked" class="btn btn-primary p-2 m-4" @click="confirmPopUp">
                 Je laisse ma voiture
-            </div>
-            <div v-if="isParked && !user.isValet" class="button" @click="recupereVoiture">
+            </button>
+            <button v-if="!user.isValet" :disabled="isMoving || !isParked" class="btn btn-primary p-2 m-4" @click="recupereVoiture">
                 J'ai récupéré ma voiture
-            </div>
+            </button>
         </div>
+        <p v-if="!user.isValet && isMoving">Vous voiture est en cours de déplacement, veuillez réessayer ultérieurement.</p>
 
         <!-- Carte de confirmation du stationnement -->
         <div v-if="confirmationPopUp" class="card w-50 mb-5">
@@ -45,6 +46,7 @@ import carPin from '../img/car.png'
 import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
 import {URL_API} from '../../const'
 import { useToast } from "vue-toastification";
+import { isGloballyAllowed } from '@vue/shared'
 
 export default {
     components: { TableauVoituresValet },
@@ -55,6 +57,7 @@ export default {
             user: {},
             map: null,
             isParked: false,
+            isMoving: false,
         }
     },
     async mounted() {
@@ -68,6 +71,9 @@ export default {
                 })
                 const { user } = toRefs(response.data)
                 this.user = user
+                if (!this.user.isValet && this.user.voiture.isMoving) {
+                    this.isMoving = true
+                } 
                 if (!this.user.isValet && this.user.voiture.isParked) {
                     this.isParked = true
                 }
@@ -111,7 +117,7 @@ export default {
                 let latitude = position.coords.latitude
                 let longitude = position.coords.longitude
                 //Si l'utilisateur est stationné et n'est pas un valet, on affiche sa voiture et non sa position actuelle
-                if (!this.user.isValet && this.user.voiture.isParked) {
+                if (!this.user.isValet && this.isParked) {
                     latitude = this.user.voiture.latitude
                     longitude = this.user.voiture.longitude
                     var marker = L.marker([latitude, longitude], {
@@ -136,7 +142,7 @@ export default {
                             popupAnchor: [1, -34],
                         }),
                     }).addTo(this.map)
-                    marker.bindPopup('<b>Votre position.</b>').
+                    marker.bindPopup('<b>Votre position.</b>')
                     marker.on({ dragend: this.onMarkerDragEnd })
                     this.map.panTo(marker.getLatLng())
                 }
@@ -167,8 +173,9 @@ export default {
          */
         onMarkerDragEnd(event) {
             console.log('onMarkerDragEnd')
-            if (!this.user.voiture.isParked) {
+            if (!this.isParked) {
                 this.latlng = event.target.getLatLng()
+                console.log(this.latlng)
             }
             // Update marker coordinates when dragged
         },
@@ -209,17 +216,12 @@ export default {
                     },
                 )
                 if (response.status === 200) {
-                    console.log(this.user.voiture.isParked)
                     this.clearMap()
-                    this.user.voiture.isParked = false
-                    await this.markerInit()
-                    //Cookies.set('token', response.data.token, { expires: 1 })
-                    this.$router.push('/maplace')
                     this.isParked = false
+                    await this.markerInit()
                     useToast().success("Vous avez récupéré votre voiture");
                 }
             } catch (error) {
-                console.error(error)
                 useToast().error("Erreur lors de la récupération de la voiture");
             }
         },
@@ -227,7 +229,6 @@ export default {
          * Fonction pour confirmer la position de la voiture
          */
         async ConfirmPosition(userId) {
-            console.log(this.latlng)
             this.confirmationPopUp = false
             const JWT = Cookies.get('token')
             try {
@@ -249,8 +250,8 @@ export default {
                     },
                 )
                 if (response.status === 200) {
+                    this.isParked = true
                     this.clearMap()
-                    this.markerInit()
                     var marker = L.marker([this.latlng.lat, this.latlng.lng], {
                         icon: L.icon({
                             iconUrl: carPin,
@@ -260,10 +261,7 @@ export default {
                         }),
                     }).addTo(this.map)
                     marker.bindPopup('<b>Votre voiture</b>')
-                    //Cookies.set('token', response.data.token, { expires: 1 })
                     this.map.panTo(marker.getLatLng())
-                    this.$router.push('/maplace')
-                    this.isParked = true
                     useToast().success("Votre voiture à bien été stationnée");
                 }
             } catch (error) {
