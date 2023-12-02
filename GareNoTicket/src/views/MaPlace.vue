@@ -1,7 +1,4 @@
 <template>
-    <Alert :alert="alert" />
-    <!-- Alert de succès -->
-    
     <div class="d-flex flex-column justify-content-center align-items-center">
         <h2 class="p-2">Carte - <i>Ma place</i></h2>
         <img v-if="!map" src="../img/loading.gif">
@@ -46,11 +43,11 @@ import { toRefs } from 'vue'
 import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
 import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
-import Alert from '../components/alert.vue'
 import {URL_API} from '../../const'
+import { useToast } from "vue-toastification";
 
 export default {
-    components: { TableauVoituresValet, Alert },
+    components: { TableauVoituresValet },
     data() {
         return {
             confirmationPopUp: false,
@@ -58,12 +55,10 @@ export default {
             user: {},
             map: null,
             isParked: false,
-            alert: null,
         }
     },
     async mounted() {
         const JWT = Cookies.get('token')
-        console.log(JWT)
         if (JWT) {
             try {
                 const response = await axios.get(URL_API + '/user', {
@@ -127,7 +122,7 @@ export default {
                             popupAnchor: [1, -34],
                         }),
                     }).addTo(this.map)
-                    marker.bindPopup('<b>Votre voiture</b>').openPopup()
+                    marker.bindPopup('<b>Votre voiture</b>')
                     this.map.panTo(marker.getLatLng())
                 }
                 // Sinon on affiche la position de l'utilisateur
@@ -141,7 +136,7 @@ export default {
                             popupAnchor: [1, -34],
                         }),
                     }).addTo(this.map)
-                    marker.bindPopup('<b>Votre position.</b>').openPopup()
+                    marker.bindPopup('<b>Votre position.</b>').
                     marker.on({ dragend: this.onMarkerDragEnd })
                     this.map.panTo(marker.getLatLng())
                 }
@@ -178,14 +173,14 @@ export default {
             // Update marker coordinates when dragged
         },
         /**
-         * Fonction pour afficher l'alerte de confirmation
+         * Fonction pour afficher le popup de confirmation
          */
         confirmPopUp() {
             console.log('confirmMove')
             this.confirmationPopUp = true
         },
         /**
-         * Fonction pour faire disparaitre l'alerte de confirmation
+         * Fonction pour faire disparaitre le popup de confirmation
          */
         AnnulerConfirmation() {
             console.log('AnnulerConfirmation')
@@ -221,11 +216,11 @@ export default {
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.$router.push('/maplace')
                     this.isParked = false
-                    this.showAlert('success')
+                    useToast().success("Vous avez récupéré votre voiture");
                 }
             } catch (error) {
                 console.error(error)
-                this.showAlert('error')
+                useToast().error("Erreur lors de la récupération de la voiture");
             }
         },
         /**
@@ -264,16 +259,16 @@ export default {
                             popupAnchor: [1, -34],
                         }),
                     }).addTo(this.map)
-                    marker.bindPopup('<b>Votre voiture</b>').openPopup()
+                    marker.bindPopup('<b>Votre voiture</b>')
                     //Cookies.set('token', response.data.token, { expires: 1 })
                     this.map.panTo(marker.getLatLng())
                     this.$router.push('/maplace')
                     this.isParked = true
-                    this.showAlert('success')
+                    useToast().success("Votre voiture à bien été stationnée");
                 }
             } catch (error) {
                 console.error(error)
-                this.showAlert('error')
+                useToast().error("Erreur lors de la confirmation");
             }
         },
         determinerTempsRestant() {
@@ -319,17 +314,6 @@ export default {
                 tempsAQuitte = secondesDepuisDebutJour + 3600
             }
             return tempsAQuitte
-        },
-
-        /**
-         * Fonction pour faire apparaitre l'alerte
-         */
-         showAlert(text) {
-            this.alert = text
-            // Cache l'alerte après 3 secondes
-            setTimeout(() => {
-                this.alert = null
-            }, 3000)
         },
     },
 }

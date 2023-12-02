@@ -1,7 +1,4 @@
 <template>
-    <Alert :alert="alert" />
-    <!-- Alert de succès -->
-
     <div class="d-flex flex-column justify-content-center align-items-center">
         <h2 class="p-2">
             Carte - <i>Bouger une voiture </i>
@@ -10,8 +7,8 @@
         <div id="map"></div>
         <div v-if="map">
             <div class="d-flex">
-                <button :disabled="user.voiture.isMoving" class="btn btn-primary p-2 m-4" @click="deplacerVoiture">Je déplace la voiture</button>
-                <button :disabled="!user.voiture.isMoving" class="btn btn-primary p-2 m-4" @click="ValiderDeplacement">Validation du stationnement</button>
+                <button :disabled="isMoving" class="btn btn-primary p-2 m-4" @click="deplacerVoiture">Je déplace la voiture</button>
+                <button :disabled="!isMoving" class="btn btn-primary p-2 m-4" @click="ValiderDeplacement">Validation du stationnement</button>
             </div>
         </div>
     </div>
@@ -25,19 +22,20 @@ import axios from 'axios'
 import { toRefs } from 'vue'
 import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
-import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
 import Alert from '../components/alert.vue'
 import { URL_API } from '../../const'
+import { useToast } from "vue-toastification";
 
 export default {
     components: { Alert },
+    
     data() {
         return {
             latlng: null,
             loggeduser: null,
             user: null,
             map: null,
-            alert: null,
+            isMoving: false,
         }
     },
     async mounted() {
@@ -66,6 +64,7 @@ export default {
         } catch (error) {
             console.error('Error fetching user data:', error)
         }
+        this.isMoving = this.user.voiture.isMoving
         await this.mapInit()
         await this.markerInit()
     },
@@ -114,7 +113,7 @@ export default {
                         popupAnchor: [1, -34],
                     }),
                 }).addTo(this.map)
-                marker.bindPopup('<b>Votre position.</b>').openPopup()
+                marker.bindPopup('<b>Votre position.</b>')
                 // marker.on({ dragend: this.onMarkerDragEnd })
                 this.map.panTo(marker.getLatLng())
                 var marker = L.marker([this.user.voiture.latitude, this.user.voiture.longitude], {
@@ -132,13 +131,7 @@ export default {
                 console.error(error)
             }
         },
-        /**
-         * Supprime tous les marqueurs de la carte avant de réinitialiser
-         */
-        beforeDestroy() {
-            this.clearMap()
-            this.map.remove()
-        },
+
         /**
          * Supprime tous les marqueurs de la carte
          */
@@ -149,6 +142,7 @@ export default {
                 }
             })
         },
+
         /**
          * Fonction appelée lorsqu'on déplace le marqueur
          * @param {*} event
@@ -158,6 +152,7 @@ export default {
             this.latlng = event.target.getLatLng()
             // Update marker coordinates when dragged
         },
+
         /**
          * Fonction pour récuperer la voiture
          */
@@ -167,12 +162,18 @@ export default {
                     URL_API + '/car/' + this.user._id,
                     {
                         isMoving: true,
+                        isParked: false,
                     },
                 )
                 if (response.status === 200) {
+                    useToast().success("Vous déplacez la voiture");
+                    this.isMoving = true
                     this.user.voiture.isMoving = true;
+                    this.user.voiture.isParked = false;
+                    console.log(this.user.voiture.isMoving)
                 }
             } catch (error) {
+                useToast().error("Erreur lors du déplacement de la voiture");
                 console.error(error)
             }
         },
@@ -180,12 +181,8 @@ export default {
          * Fonction pour confirmer la position de la voiture
          */
         async ValiderDeplacement() {
-            console.log(this.latlng)
-            this.confirmationPopUp = false
-            const JWT = Cookies.get('token')
             try {
                 let tempsAQuitter = this.determinerTempsRestant()
-                console.log(tempsAQuitter)
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
                     URL_API + '/car/' + this.user._id,
@@ -196,21 +193,13 @@ export default {
                         isMoving: false,
                         timeToLeave: tempsAQuitter,
                     },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${JWT}`,
-                        },
-                    },
                 )
                 if (response.status === 200) {
-                    this.user.voiture.isMoving = false
-                    this.user.voiture.isParked = true
-                    //Cookies.set('token', response.data.token, { expires: 1 })
-                    this.showAlert('success')
+                    useToast().success("Voiture déplacée avec succès");
+                    this.isMoving = false
                 }
             } catch (error) {
-                console.error(error)
-                this.showAlert('error')
+                useToast().error("Erreur lors du déplacement de la voiture");
             }
         },
         determinerTempsRestant() {
@@ -256,17 +245,6 @@ export default {
                 tempsAQuitte = secondesDepuisDebutJour + 3600
             }
             return tempsAQuitte
-        },
-
-        /**
-         * Fonction pour faire apparaitre l'alerte
-         */
-        showAlert(text) {
-            this.alert = text
-            // Cache l'alerte après 3 secondes
-            setTimeout(() => {
-                this.alert = null
-            }, 3000)
         },
     },
 }

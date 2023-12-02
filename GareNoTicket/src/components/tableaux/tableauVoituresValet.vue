@@ -1,6 +1,6 @@
 <template>
     <div>
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover text-center">
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">Nom</th>
@@ -9,8 +9,8 @@
                     <th scope="col">Plaque</th>
                     <th scope="col">Couleur</th>
                     <th scope="col">Temps restant</th>
-                    <th scope="col">Bouger la voiture</th>
-                    <th scope="col">Voir la voiture</th>
+                    <th scope="col">Bouger</th>
+                    <th scope="col">Centrer</th>
                 </tr>
             </thead>
             <tbody>
@@ -39,7 +39,6 @@
 import axios from 'axios'
 import L from 'leaflet'
 import carPin from '../../img/car.png'
-import Cookies from 'js-cookie'
 import {URL_API} from '../../../const'
 import imgCle from '../../img/cle.png'
 
@@ -107,10 +106,8 @@ export default {
                                 '<br>' +
                                 user.voiture.plaque,
                         )
-                        .openPopup()
                     marker.id = user._id
                 }
-                console.log(this.latlng)
             }
         } catch (error) {
             console.log(error)
@@ -127,44 +124,6 @@ export default {
                 }
             })
         },
-        async ConfirmPosition(e) {
-            //A REVÉRIFIER, PEUT ETRE SUPPRIMER PARCE QUE C'EST RENDU DANS LE BOUGERVOITURE.VUE
-            const userId = e.target.id
-            console.log(userId)
-            let tempsAQuitter = this.determinerTempsRestant()
-
-            await axios
-                .put(URL_API + '/car/' + userId, {
-                    latitude: this.latlng[userId].lat,
-                    longitude: this.latlng[userId].lng,
-                    isParked: true,
-                    timeToLeave: tempsAQuitter,
-                })
-                .catch((error) => {
-                    console.log(error)
-                })
-                
-            for (const user of this.usersRelatedToValet) {
-                if (user._id === userId) {
-                    let maintenant = new Date()
-                    const debutDuJour = new Date(
-                        maintenant.getFullYear(),
-                        maintenant.getMonth(),
-                        maintenant.getDate(),
-                    )
-                    user.voiture.latitude = this.latlng[userId].lat
-                    user.voiture.longitude = this.latlng[userId].lng
-                    user.voiture.isParked = true
-                    user.voiture.timeToLeave = tempsAQuitter
-                    const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
-                    // Si le temps restant est supérieur à 16h, on laisse le vrai temps restant pour pouvoir afficher Demain (A REVOIR)
-                    if (user.voiture.timeToLeave <= 57600) {
-                        user.voiture.timeToLeave =
-                            user.voiture.timeToLeave - secondesDepuisDebutJour
-                    }
-                }
-            }
-        },
         centerVehiculeMap(voiture) {
             this.map.setView(new L.LatLng(voiture.latitude, voiture.longitude), 17)    
         },
@@ -174,7 +133,7 @@ export default {
 
 <style>
 .img-tab {
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
 }
 </style>
