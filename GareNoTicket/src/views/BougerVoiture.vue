@@ -186,6 +186,7 @@ export default {
          * Fonction pour confirmer la position de la voiture
          */
         async ValiderDeplacement() {
+            const JWT = Cookies.get('token')
             try {
                 let tempsAQuitter = this.determinerTempsRestant()
                 //On envoie les données de la voiture à l'API
@@ -195,11 +196,14 @@ export default {
                     isMoving: false,
                     timeToLeave: tempsAQuitter,
                 })
-                const response2 = await axios.post(URL_API + '/addHistorique/' + this.loggeduser._id, {
+                const response2 = await axios.post(URL_API + '/addHistorique', {
                     price: this.loggeduser.price,
                     userId: this.user._id,
+                    headers: {
+                        Authorization: `Bearer ${JWT}`,
+                    },
                 })
-                if (response.status === 200 && response2.status === 200) {
+                if (response.status === 200 && response2.status === 201) {
                     useToast().success('Voiture déplacée avec succès')
                     this.isMoving = false
                 }

@@ -106,7 +106,7 @@ exports.getFacture = async (req, res, next) => {
 }
 
 exports.addHistorique = async (req, res, next) => {
-    const valetId = req.valetId;
+    const valetId = req.userId;
     const { userId, price } = req.body;
     console.log("userId", userId);
     try {
