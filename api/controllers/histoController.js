@@ -103,4 +103,25 @@ exports.getFacture = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-};
+}
+
+exports.addHistorique = async (req, res, next) => {
+    const valetId = req.valetId;
+    const { userId, price } = req.body;
+    console.log("userId", userId);
+    try {
+        const histo = new Histo({
+            valetId : valetId,
+            userId: userId,
+            price: price,
+            isPaid: false,
+        });
+        await histo.save();
+        res.status(201).json({
+            message: "Historique ajouté avec succès.",
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+;

@@ -1,14 +1,24 @@
 <template>
     <div class="d-flex flex-column justify-content-center align-items-center">
-        <h2 class="p-2">
-            Carte - <i>Bouger une voiture </i>
-        </h2>
+        <h2 class="p-2">Carte - <i>Bouger une voiture </i></h2>
         <img v-if="!map" src="../img/loading.gif" />
         <div id="map"></div>
         <div v-if="map">
             <div class="d-flex">
-                <button :disabled="isMoving" class="btn btn-primary p-2 m-4" @click="deplacerVoiture">Je déplace la voiture</button>
-                <button :disabled="!isMoving" class="btn btn-primary p-2 m-4" @click="ValiderDeplacement">Validation du stationnement</button>
+                <button
+                    :disabled="isMoving"
+                    class="btn btn-primary p-2 m-4"
+                    @click="deplacerVoiture"
+                >
+                    Je déplace la voiture
+                </button>
+                <button
+                    :disabled="!isMoving"
+                    class="btn btn-primary p-2 m-4"
+                    @click="ValiderDeplacement"
+                >
+                    Validation du stationnement
+                </button>
             </div>
         </div>
     </div>
@@ -24,14 +34,17 @@ import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
 import Alert from '../components/alert.vue'
 import { URL_API } from '../../const'
-import { useToast } from "vue-toastification";
+import { useToast } from 'vue-toastification'
 
 export default {
     components: { Alert },
-    
+
     data() {
         return {
-            latlng: null,
+            latlng: {
+                lat: 0,
+                lng: 0,
+            },
             loggeduser: null,
             user: null,
             map: null,
@@ -41,8 +54,10 @@ export default {
     },
     async created() {
         this.position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject)
-                })
+            navigator.geolocation.getCurrentPosition(resolve, reject)
+        })
+        this.latlng.lat = this.position.coords.latitude
+        this.latlng.lng = this.position.coords.longitude
     },
     async mounted() {
         const userId = this.$route.params.userId
@@ -50,14 +65,12 @@ export default {
         console.log(JWT)
         if (JWT) {
             try {
-                URL_API
                 const response = await axios.get(URL_API + '/user', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
                     },
                 })
-                const { loggeduser } = toRefs(response.data)
-                this.loggeduser = loggeduser
+                this.loggeduser = response.data.user
             } catch (error) {
                 console.error('Error fetching user data:', error)
             }
@@ -100,12 +113,8 @@ export default {
          */
         async markerInit() {
             try {
-                //On récupère la position de l'utilisateur
-                
-                let latitude = this.position.coords.latitude
-                let longitude = this.position.coords.longitude
                 // On affiche la position du valet
-                var marker = L.marker([latitude, longitude], {
+                var marker = L.marker([this.latlng.lat, this.latlng.lng], {
                     draggable: 'true',
                     icon: L.icon({
                         iconUrl: redPin,
@@ -126,7 +135,7 @@ export default {
                         popupAnchor: [1, -34],
                     }),
                 }).addTo(this.map)
-                marker.bindPopup('<b>Voiture de ' + this.user.username + '</b>').openPopup()
+                marker.bindPopup('<b>Voiture de ' + this.user.username + '</b>')
                 marker.on({ dragend: this.onMarkerDragEnd })
             } catch (error) {
                 console.error(error)
@@ -159,20 +168,17 @@ export default {
          */
         async deplacerVoiture() {
             try {
-                const response = await axios.put(
-                    URL_API + '/car/' + this.user._id,
-                    {
-                        isMoving: true,
-                    },
-                )
+                const response = await axios.put(URL_API + '/car/' + this.user._id, {
+                    isMoving: true,
+                })
                 if (response.status === 200) {
-                    useToast().success("Vous déplacez la voiture");
+                    useToast().success('Vous déplacez la voiture')
                     this.isMoving = true
-                    this.user.voiture.isMoving = true;
-                    this.user.voiture.isParked = true;
+                    this.user.voiture.isMoving = true
+                    this.user.voiture.isParked = true
                 }
             } catch (error) {
-                useToast().error("Erreur lors du déplacement de la voiture");
+                useToast().error('Erreur lors du déplacement de la voiture')
                 console.error(error)
             }
         },
@@ -183,21 +189,23 @@ export default {
             try {
                 let tempsAQuitter = this.determinerTempsRestant()
                 //On envoie les données de la voiture à l'API
-                const response = await axios.put(
-                    URL_API + '/car/' + this.user._id,
-                    {
-                        latitude: this.latlng.lat,
-                        longitude: this.latlng.lng,
-                        isMoving: false,
-                        timeToLeave: tempsAQuitter,
-                    },
-                )
-                if (response.status === 200) {
-                    useToast().success("Voiture déplacée avec succès");
+                const response = await axios.put(URL_API + '/car/' + this.user._id, {
+                    latitude: this.latlng.lat,
+                    longitude: this.latlng.lng,
+                    isMoving: false,
+                    timeToLeave: tempsAQuitter,
+                })
+                const response2 = await axios.post(URL_API + '/addHistorique/' + this.loggeduser._id, {
+                    price: this.loggeduser.price,
+                    userId: this.user._id,
+                })
+                if (response.status === 200 && response2.status === 200) {
+                    useToast().success('Voiture déplacée avec succès')
                     this.isMoving = false
                 }
             } catch (error) {
-                useToast().error("Erreur lors du déplacement de la voiture");
+                useToast().error('Erreur lors du déplacement de la voiture')
+                console.error(error)
             }
         },
         determinerTempsRestant() {

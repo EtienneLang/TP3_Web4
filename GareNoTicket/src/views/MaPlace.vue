@@ -87,6 +87,8 @@ export default {
         this.position = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject)
         })
+        this.latlng.lat = this.position.coords.latitude
+        this.latlng.lng = this.position.coords.longitude
     },
     async mounted() {
         const JWT = Cookies.get('token')
@@ -138,9 +140,6 @@ export default {
          */
         async markerInit() {
             try {
-                this.latlng.lat = this.position.coords.latitude
-                this.latlng.lng = this.position.coords.longitude
-                console.log(this.latlng)
                 //Si l'utilisateur est stationné et n'est pas un valet, on affiche sa voiture et non sa position actuelle
                 if (!this.user.isValet && this.isParked) {
                     this.latlng.lat = this.user.voiture.latitude
