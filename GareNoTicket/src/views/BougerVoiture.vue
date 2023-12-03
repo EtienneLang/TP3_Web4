@@ -36,7 +36,13 @@ export default {
             user: null,
             map: null,
             isMoving: false,
+            position: {},
         }
+    },
+    async created() {
+        this.position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject)
+                })
     },
     async mounted() {
         const userId = this.$route.params.userId
@@ -74,11 +80,8 @@ export default {
          */
         async mapInit() {
             try {
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject)
-                })
-                let latitude = position.coords.latitude
-                let longitude = position.coords.longitude
+                let latitude = this.position.coords.latitude
+                let longitude = this.position.coords.longitude
                 this.map = L.map('map', { _zoomAnimation: false }).setView(
                     [latitude, longitude],
                     13,
@@ -98,11 +101,9 @@ export default {
         async markerInit() {
             try {
                 //On récupère la position de l'utilisateur
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject)
-                })
-                let latitude = position.coords.latitude
-                let longitude = position.coords.longitude
+                
+                let latitude = this.position.coords.latitude
+                let longitude = this.position.coords.longitude
                 // On affiche la position du valet
                 var marker = L.marker([latitude, longitude], {
                     draggable: 'true',

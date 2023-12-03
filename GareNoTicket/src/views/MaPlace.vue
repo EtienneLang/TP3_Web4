@@ -1,17 +1,36 @@
 <template>
     <div class="d-flex flex-column justify-content-center align-items-center">
         <h2 class="p-2">Carte - <i>Ma place</i></h2>
-        <img v-if="!map" src="../img/loading.gif">
+        <img v-if="!map" src="../img/loading.gif" />
         <div id="map"></div>
         <div class="d-flex">
-            <button v-if="!user.isValet" :disabled="isMoving || isParked" class="btn btn-primary p-2 m-4" @click="confirmPopUp">
+            <button
+                v-if="!user.isValet"
+                :disabled="isMoving || isParked"
+                class="btn btn-primary p-2 m-4"
+                @click="confirmPopUp"
+            >
                 Je laisse ma voiture
             </button>
-            <button v-if="!user.isValet" :disabled="isMoving || !isParked" class="btn btn-primary p-2 m-4" @click="recupereVoiture">
+            <button
+                v-if="!user.isValet"
+                :disabled="isMoving || !isParked"
+                class="btn btn-primary p-2 m-4"
+                @click="recupereVoiture"
+            >
                 J'ai récupéré ma voiture
             </button>
+            <img
+                v-if="isParked"
+                class="img-center m-4"
+                src="../img/map.png"
+                alt=""
+                @click="centerVehiculeMap"
+            />
         </div>
-        <p v-if="!user.isValet && isMoving">Vous voiture est en cours de déplacement, veuillez réessayer ultérieurement.</p>
+        <p v-if="!user.isValet && isMoving">
+            Vous voiture est en cours de déplacement, veuillez réessayer ultérieurement.
+        </p>
 
         <!-- Carte de confirmation du stationnement -->
         <div v-if="confirmationPopUp" class="card w-50 mb-5">
@@ -44,21 +63,30 @@ import { toRefs } from 'vue'
 import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
 import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
-import {URL_API} from '../../const'
-import { useToast } from "vue-toastification";
-import { isGloballyAllowed } from '@vue/shared'
+import { URL_API } from '../../const'
+import { useToast } from 'vue-toastification'
 
 export default {
     components: { TableauVoituresValet },
     data() {
         return {
             confirmationPopUp: false,
-            latlng: null,
+            latlng: {
+                lat: 0,
+                lng: 0,
+            },
             user: {},
             map: null,
             isParked: false,
             isMoving: false,
+            position: {},
         }
+    },
+    async created() {
+        //On récupère la position de l'utilisateur
+        this.position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject)
+        })
     },
     async mounted() {
         const JWT = Cookies.get('token')
@@ -73,7 +101,7 @@ export default {
                 this.user = user
                 if (!this.user.isValet && this.user.voiture.isMoving) {
                     this.isMoving = true
-                } 
+                }
                 if (!this.user.isValet && this.user.voiture.isParked) {
                     this.isParked = true
                 }
@@ -90,12 +118,12 @@ export default {
          */
         async mapInit() {
             try {
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject)
-                })
-                let latitude = position.coords.latitude
-                let longitude = position.coords.longitude
-                this.map = L.map('map',{_zoomAnimation:false}).setView([latitude, longitude], 13)
+                let latitude = this.position.coords.latitude
+                let longitude = this.position.coords.longitude
+                this.map = L.map('map', { _zoomAnimation: false }).setView(
+                    [latitude, longitude],
+                    13,
+                )
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution:
@@ -110,17 +138,14 @@ export default {
          */
         async markerInit() {
             try {
-                //On récupère la position de l'utilisateur
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject)
-                })
-                let latitude = position.coords.latitude
-                let longitude = position.coords.longitude
+                this.latlng.lat = this.position.coords.latitude
+                this.latlng.lng = this.position.coords.longitude
+                console.log(this.latlng)
                 //Si l'utilisateur est stationné et n'est pas un valet, on affiche sa voiture et non sa position actuelle
                 if (!this.user.isValet && this.isParked) {
-                    latitude = this.user.voiture.latitude
-                    longitude = this.user.voiture.longitude
-                    var marker = L.marker([latitude, longitude], {
+                    this.latlng.lat = this.user.voiture.latitude
+                    this.latlng.lng = this.user.voiture.longitude
+                    var marker = L.marker([this.latlng.lat, this.latlng.lng], {
                         icon: L.icon({
                             iconUrl: carPin,
                             iconSize: [41, 41],
@@ -133,7 +158,7 @@ export default {
                 }
                 // Sinon on affiche la position de l'utilisateur
                 else {
-                    var marker = L.marker([latitude, longitude], {
+                    var marker = L.marker([this.latlng.lat, this.latlng.lng], {
                         draggable: 'true',
                         icon: L.icon({
                             iconUrl: redPin,
@@ -202,7 +227,8 @@ export default {
             try {
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' + this.user._id,
+                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' +
+                        this.user._id,
                     {
                         latitude: null,
                         longitude: null,
@@ -219,10 +245,10 @@ export default {
                     this.clearMap()
                     this.isParked = false
                     await this.markerInit()
-                    useToast().success("Vous avez récupéré votre voiture");
+                    useToast().success('Vous avez récupéré votre voiture')
                 }
             } catch (error) {
-                useToast().error("Erreur lors de la récupération de la voiture");
+                useToast().error('Erreur lors de la récupération de la voiture')
             }
         },
         /**
@@ -236,7 +262,8 @@ export default {
                 console.log(tempsAQuitter)
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' + userId,
+                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' +
+                        userId,
                     {
                         latitude: this.latlng.lat,
                         longitude: this.latlng.lng,
@@ -262,11 +289,11 @@ export default {
                     }).addTo(this.map)
                     marker.bindPopup('<b>Votre voiture</b>')
                     this.map.panTo(marker.getLatLng())
-                    useToast().success("Votre voiture à bien été stationnée");
+                    useToast().success('Votre voiture à bien été stationnée')
                 }
             } catch (error) {
                 console.error(error)
-                useToast().error("Erreur lors de la confirmation");
+                useToast().error('Erreur lors de la confirmation')
             }
         },
         determinerTempsRestant() {
@@ -313,6 +340,9 @@ export default {
             }
             return tempsAQuitte
         },
+        centerVehiculeMap() {
+            this.map.setView(new L.LatLng(this.latlng.lat, this.latlng.lng), 17)
+        },
     },
 }
 </script>
@@ -336,5 +366,14 @@ export default {
 }
 .button:hover {
     background-color: #0a53c2;
+}
+.img-center {
+    width: 50px;
+    height: 50px;
+}
+.img-center:hover {
+    cursor: pointer;
+    background-color: lightgray;
+    border-radius: 5%;
 }
 </style>
