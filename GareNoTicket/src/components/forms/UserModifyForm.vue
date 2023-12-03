@@ -70,6 +70,10 @@ export default {
             alert: null,
         };
     },
+    created() {
+        // Pour afficher le prix en dollars et non en cents
+        this.user.price = this.user.price/100;
+    },
     methods: {
         validerEmail() {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -105,7 +109,7 @@ export default {
                 const response = await axios.put(URL_API+"/user/" + this.user._id, {
                     username: this.user.username,
                     email: this.user.email,
-                    price: this.user.price,
+                    price: this.user.price*100,
                 }, {
                     headers: {
                         Authorization: `Bearer ${JWT}`,

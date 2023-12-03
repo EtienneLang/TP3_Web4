@@ -196,13 +196,18 @@ export default {
                     isMoving: false,
                     timeToLeave: tempsAQuitter,
                 })
-                const response2 = await axios.post(URL_API + '/addHistorique', {
-                    price: this.loggeduser.price,
-                    userId: this.user._id,
-                    headers: {
-                        Authorization: `Bearer ${JWT}`,
+                const response2 = await axios.post(
+                    URL_API + '/addHistorique',
+                    {
+                        price: this.loggeduser.price,
+                        userId: this.user._id,
                     },
-                })
+                    {
+                        headers: {
+                            Authorization: `Bearer ${JWT}`,
+                        },
+                    },
+                )
                 if (response.status === 200 && response2.status === 201) {
                     useToast().success('Voiture déplacée avec succès')
                     this.isMoving = false
