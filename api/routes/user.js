@@ -15,7 +15,7 @@ router.get('/user/', authMiddleware, usersController.getUser);
 router.get('/user/:id', usersController.getUserById);
 
 // Mise à jour d'un utilisateur
-router.put('/user/:userId', usersController.updateUser);
+router.put('/user/:userId', authMiddleware, usersController.updateUser);
 
 // Suppression de l'utilisateur actuellement connecté
 router.delete('/user/', usersController.deleteUser);

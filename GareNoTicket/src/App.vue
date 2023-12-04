@@ -7,7 +7,9 @@ import { RouterLink, RouterView } from 'vue-router'
         <div>
             <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
                 <div class="container-fluid">
-                    <RouterLink class="navbar-brand" to="/"><i>Gare<strong>NoTicket</strong></i></RouterLink>
+                    <RouterLink class="navbar-brand" to="/"
+                        ><i>Gare<strong>NoTicket</strong></i></RouterLink
+                    >
                     <button
                         class="navbar-toggler"
                         type="button"
@@ -25,19 +27,32 @@ import { RouterLink, RouterView } from 'vue-router'
                                 <RouterLink class="nav-link" to="/">Accueil</RouterLink>
                             </li>
                             <li class="nav-item">
-                                <RouterLink v-if="!isLoggedIn" class="nav-link" to="/login">Login</RouterLink>
+                                <RouterLink v-if="!isLoggedIn" class="nav-link" to="/login"
+                                    >Login</RouterLink
+                                >
                             </li>
                             <li class="nav-item">
-                                <RouterLink v-if="!isLoggedIn" class="nav-link" to="/signup">Sign Up</RouterLink>
+                                <RouterLink v-if="!isLoggedIn" class="nav-link" to="/signup"
+                                    >Sign Up</RouterLink
+                                >
                             </li>
                             <li class="nav-item">
-                                <RouterLink v-if="isLoggedIn" class="nav-link" to="/profil">Mon profil</RouterLink>
+                                <RouterLink v-if="isLoggedIn" class="nav-link" to="/profil"
+                                    >Mon profil</RouterLink
+                                >
                             </li>
                             <li>
-                                <RouterLink v-if="isLoggedIn" class="nav-link" to="/maplace">Ma place</RouterLink>
+                                <RouterLink v-if="isLoggedIn" class="nav-link" to="/maplace"
+                                    >Ma place</RouterLink
+                                >
                             </li>
                             <li>
-                                <RouterLink v-if="isLoggedIn" class="nav-link" to="/transaction">Transaction</RouterLink>
+                                <RouterLink
+                                    v-if="isLoggedIn && user.isValet === false"
+                                    class="nav-link"
+                                    to="/transaction"
+                                    >Transaction</RouterLink
+                                >
                             </li>
                             <li class="nav-item">
                                 <a v-if="isLoggedIn" class="nav-link" @click="logout">Logout</a>
@@ -52,24 +67,40 @@ import { RouterLink, RouterView } from 'vue-router'
 </template>
 
 <script>
-import Cookies from 'js-cookie';
+import Cookies from 'js-cookie'
 
 export default {
-  data() {
-    return {
-      isLoggedIn: false,
-    };
-  },
-  mounted() {
-    this.isLoggedIn = !!Cookies.get('token');
-  },
-  methods: {
-    logout() {
-      Cookies.remove('token');
-      this.isLoggedIn = false;
-      this.$router.push('/');
+    data() {
+        return {
+            isLoggedIn: false,
+            user: {},
+        }
     },
-  },
-};
+    async mounted() {
+        this.isLoggedIn = !!Cookies.get('token')
+        const JWT = Cookies.get('token')
+        if (JWT) {
+            try {
+                const response = await axios.get(URL_API + '/user', {
+                    headers: {
+                        Authorization: `Bearer ${JWT}`,
+                    },
+                })
+                const { user } = toRefs(response.data)
+                this.user = user
+                console.log('User data:', this.user)
+            } catch (error) {
+                console.error('Error fetching user data:', error)
+            }
+        }
+    },
+    methods: {
+        logout() {
+            Cookies.remove('token')
+            this.isLoggedIn = false
+            this.$router.push('/')
+        },
+    },
+}
 </script>
 <style scoped></style>

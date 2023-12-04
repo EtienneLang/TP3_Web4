@@ -36,6 +36,13 @@ app.use(userRoutes);
 app.use(historiqueRoutes);
 app.use(seed);
 
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message || 'Erreur interne du serveur';
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
+});
 
 mongoose
   .connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })

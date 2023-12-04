@@ -32,8 +32,18 @@ exports.getUser = async (req, res, next) => {
     const userId = req.userId;
     console.log("userId", userId);
     const user = await checkUserExists(userId);
+    const links = [
+      {
+        rel: 'delete',
+        href: `/api/users/${userId}`,
+        method: 'DELETE',
+      },
+    ];
     res.status(200).json({
-      user: user
+      user: {
+        ...user,
+        links,
+      },
     });
   } catch (err) {
     next(err);
@@ -136,7 +146,6 @@ exports.deleteUser = async (req, res, next) => {
   try {
     const userId = req.userId;
     const user = await checkUserExists(userId);
-    //JE VAIS DEVOIR REGARDER SI C'EST OK, METHODE DE BASE ÉTAIT .REMOVE MAIS CA NE MARCHAIT PAS
     await User.deleteOne({ _id: userId });
     if (user.voiture) {
      await Voiture.deleteOne({ _id:user.voiture._id });

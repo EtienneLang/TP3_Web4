@@ -1,10 +1,10 @@
 module.exports = [
     {
         _id: "655b939c3173af5ac257f333",
-        marque: "Toyota",
-        modele: "Corolla",
-        couleur: "Rouge",
-        plaque: "ABC123",
+        marque: "Mitsubishi",
+        modele: "Lancer",
+        couleur: "Rouge et noir",
+        plaque: "J70XMH",
         valet: "5f1f4d5b3c6d3b0017f4c9e6",
         isParked: true,
         isMoving: false,

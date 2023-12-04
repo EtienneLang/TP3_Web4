@@ -56,7 +56,7 @@ export default {
                 })
                 const { user } = toRefs(response.data)
                 this.user = user
-                console.log('User data:', this.user)
+                console.log('User data:', response)
             } catch (error) {
                 console.error('Error fetching user data:', error)
             }
