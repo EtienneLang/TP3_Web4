@@ -6,7 +6,7 @@
         <div class="d-flex">
             <button
                 v-if="!user.isValet"
-                :disabled="isMoving || isParked"
+                :disabled="isMoving || isParked || totalAPayer >= 20"
                 class="btn btn-primary p-2 m-4"
                 @click="confirmPopUp"
             >
@@ -14,7 +14,7 @@
             </button>
             <button
                 v-if="!user.isValet"
-                :disabled="isMoving || !isParked"
+                :disabled="isMoving || !isParked || totalAPayer >= 20"
                 class="btn btn-primary p-2 m-4"
                 @click="recupereVoiture"
             >
@@ -30,6 +30,9 @@
         </div>
         <p v-if="!user.isValet && isMoving">
             Vous voiture est en cours de déplacement, veuillez réessayer ultérieurement.
+        </p>
+        <p v-if="totalAPayer >= 20">
+            Vous devez payer votre facture, sinon le service vous est coupé!
         </p>
 
         <!-- Carte de confirmation du stationnement -->
@@ -80,6 +83,7 @@ export default {
             isParked: false,
             isMoving: false,
             position: {},
+            totalAPayer: 0,
         }
     },
     async created() {
@@ -107,6 +111,12 @@ export default {
                 if (!this.user.isValet && this.user.voiture.isParked) {
                     this.isParked = true
                 }
+                const total = await axios.get(URL_API + '/totalAPayer', {
+                    headers: {
+                        Authorization: `Bearer ${JWT}`,
+                    },
+                })
+                this.totalAPayer = total.data.prixTotal
                 console.log(this.user._doc)
             } catch (error) {
                 console.error('Error fetching user data:', error)
@@ -227,8 +237,7 @@ export default {
             try {
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' +
-                        this.user._id,
+                    URL_API + '/car/' + this.user._id,
                     {
                         latitude: null,
                         longitude: null,
@@ -262,8 +271,7 @@ export default {
                 console.log(tempsAQuitter)
                 //On envoie les données de la voiture à l'API
                 const response = await axios.put(
-                    'https://api-garenoticket-1z1gosa7x-etiennelanglois-projects.vercel.app/car/' +
-                        userId,
+                    URL_API + '/car/' + userId,
                     {
                         latitude: this.latlng.lat,
                         longitude: this.latlng.lng,

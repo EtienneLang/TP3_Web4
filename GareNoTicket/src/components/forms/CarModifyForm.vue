@@ -1,5 +1,4 @@
 <template>
-    <Alert :alert="alert" />
     <form @submit.prevent="submitForm" method="PUT" class="p-3 border rounded w-25 m-5">
         <div class="form-group">
             <label for="marque">Marque:</label>
@@ -58,7 +57,7 @@
 <script>
 import Cookies from 'js-cookie'
 import axios from 'axios'
-import Alert from '../alert.vue'
+import { useToast } from 'vue-toastification'
 import {URL_API} from '../../../const'
 
 export default {
@@ -68,9 +67,6 @@ export default {
             type: Object,
             required: true,
         },
-    },
-    components: {
-        Alert,
     },
     data() {
         return {
@@ -162,20 +158,13 @@ export default {
                 )
                 if (response.status === 200) {
                     console.log('User modified')
-                    this.showAlert('success')
+                    useToast().success('Voiture modifiée')
                     //Cookies.set('token', response.data.token, { expires: 1 })
                 }
             } catch (error) {
                 console.error(error)
-                this.showAlert('error')
+                useToast().error('Erreur lors de la modification de la voiture')
             }
-        },
-        showAlert(text) {
-            this.alert = text
-            // Cache l'alerte après 3 secondes
-            setTimeout(() => {
-                this.alert = null
-            }, 3000)
         },
     },
 }

@@ -38,12 +38,12 @@ import Cookies from 'js-cookie'
 import axios from 'axios'
 import TableauFacture from '../components/tableaux/tableauFacture.vue'
 import TableauHistorique from '../components/tableaux/tableauHistorique.vue'
-import Alert from '../components/alert.vue'
+import { useToast } from 'vue-toastification'
 import {URL_API} from '../../const'
 
 export default {
     name: 'Transaction',
-    components: { TableauFacture, TableauHistorique, Alert },
+    components: { TableauFacture, TableauHistorique },
     data() {
         return {
             prixTotal: 0,
@@ -69,18 +69,11 @@ export default {
                     },
                 })
                 this.prixTotal = 0
-                this.showAlert('success')
+                useToast().success('Paiement effectué')
             } catch (error) {
                 console.error(error)
-                this.showAlert('error')
+                useToast().error('Erreur lors du paiement')
             }
-        },
-        showAlert(text) {
-            this.alert = text
-            // Cache l'alerte après 3 secondes
-            setTimeout(() => {
-                this.alert = null
-            }, 3000)
         },
     },
 }

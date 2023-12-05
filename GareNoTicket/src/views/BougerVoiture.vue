@@ -167,10 +167,19 @@ export default {
          * Fonction pour récuperer la voiture
          */
         async deplacerVoiture() {
+            const JWT = Cookies.get('token')
             try {
-                const response = await axios.put(URL_API + '/car/' + this.user._id, {
-                    isMoving: true,
-                })
+                const response = await axios.put(
+                    URL_API + '/car/' + this.user._id,
+                    {
+                        isMoving: true,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${JWT}`,
+                        },
+                    },
+                )
                 if (response.status === 200) {
                     useToast().success('Vous déplacez la voiture')
                     this.isMoving = true
@@ -190,12 +199,20 @@ export default {
             try {
                 let tempsAQuitter = this.determinerTempsRestant()
                 //On envoie les données de la voiture à l'API
-                const response = await axios.put(URL_API + '/car/' + this.user._id, {
-                    latitude: this.latlng.lat,
-                    longitude: this.latlng.lng,
-                    isMoving: false,
-                    timeToLeave: tempsAQuitter,
-                })
+                const response = await axios.put(
+                    URL_API + '/car/' + this.user._id,
+                    {
+                        latitude: this.latlng.lat,
+                        longitude: this.latlng.lng,
+                        isMoving: false,
+                        timeToLeave: tempsAQuitter,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${JWT}`,
+                        },
+                    },
+                )
                 const response2 = await axios.post(
                     URL_API + '/addHistorique',
                     {
