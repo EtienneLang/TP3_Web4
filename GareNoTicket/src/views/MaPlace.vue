@@ -107,6 +107,7 @@ export default {
                 if (!this.user.isValet && this.user.voiture.isParked) {
                     this.isParked = true
                 }
+                console.log(this.user._doc)
             } catch (error) {
                 console.error('Error fetching user data:', error)
             }

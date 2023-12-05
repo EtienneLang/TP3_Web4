@@ -68,6 +68,9 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <script>
 import Cookies from 'js-cookie'
+import axios from 'axios'
+import {URL_API} from '../const.js'
+import { toRefs } from 'vue'
 
 export default {
     data() {

@@ -32,18 +32,15 @@ exports.getUser = async (req, res, next) => {
     const userId = req.userId;
     console.log("userId", userId);
     const user = await checkUserExists(userId);
-    const links = [
-      {
-        rel: 'delete',
-        href: `/api/users/${userId}`,
-        method: 'DELETE',
-      },
-    ];
+    // const links = [
+    //   {
+    //     rel: 'delete',
+    //     href: `/api/users/${userId}`,
+    //     method: 'DELETE',
+    //   },
+    // ];
     res.status(200).json({
-      user: {
-        ...user,
-        links,
-      },
+      user: user,
     });
   } catch (err) {
     next(err);
