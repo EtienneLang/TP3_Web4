@@ -32,13 +32,6 @@ exports.getUser = async (req, res, next) => {
     const userId = req.userId;
     console.log("userId", userId);
     const user = await checkUserExists(userId);
-    // const links = [
-    //   {
-    //     rel: 'delete',
-    //     href: `/api/users/${userId}`,
-    //     method: 'DELETE',
-    //   },
-    // ];
     res.status(200).json({
       user: user,
     });
@@ -94,6 +87,31 @@ exports.updateCar = async (req, res, next) => {
       throw error;
     }
     const { marque, modele, couleur, plaque, latitude, longitude, isParked, timeToLeave, isMoving } = req.body;
+    
+
+    if (marque.length < 1 || marque.length > 50) {
+      const error = new Error('La marque doit contenir entre 1 et 50 caractères.');
+      error.statusCode = 400;
+      throw error;
+    }
+    if (modele.length < 1 || modele.length > 50) {
+      const error = new Error('Le modèle doit contenir entre 1 et 50 caractères.');
+      error.statusCode = 400;
+      throw error;
+    }
+    if (couleur.length < 3 || couleur.length > 50) {
+      const error = new Error('La couleur doit contenir entre 3 et 50 caractères.');
+      error.statusCode = 400;
+      throw error;
+    }
+    if (plaque.length !== 6) {
+      const error = new Error('La plaque doit contenir 6 caractères.');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    
+
     if (!user.voiture) {
       const voiture = new Voiture({
         marque: marque,
@@ -137,7 +155,6 @@ exports.updateCar = async (req, res, next) => {
     next(err);
   }
 }
-
 
 exports.deleteUser = async (req, res, next) => {
   try {
