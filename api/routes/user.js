@@ -23,7 +23,5 @@ router.delete('/user/', authMiddleware, usersController.deleteUser);
 // Mise à jour d'une voiture
 router.put('/car/:userId', authMiddleware, usersController.updateCar);
 
-rou
-
 module.exports = router;
 
