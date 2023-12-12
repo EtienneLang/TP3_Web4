@@ -115,31 +115,41 @@ exports.updateCar = async (req, res, next) => {
             isMoving,
         } = req.body;
 
-        if (marque && (marque.length < 1 || marque.length > 50)) {
-            const error = new Error(
-                "La marque doit contenir entre 1 et 50 caractères."
-            );
-            error.statusCode = 400;
-            throw error;
+        if (marque) {
+            if (marque.length < 1 || marque.length > 50) {
+                const error = new Error(
+                    "La marque doit contenir entre 1 et 50 caractères."
+                );
+                error.statusCode = 400;
+                throw error;
+            }
         }
-        if (modele && (modele.length < 1 || modele.length > 50)) {
-            const error = new Error(
-                "Le modèle doit contenir entre 1 et 50 caractères."
-            );
-            error.statusCode = 400;
-            throw error;
+        if (modele) {
+            if (modele.length < 1 || modele.length > 50) {
+                const error = new Error(
+                    "Le modèle doit contenir entre 1 et 50 caractères."
+                );
+                error.statusCode = 400;
+                throw error;
+            }
         }
-        if (couleur && (couleur.length < 3 || couleur.length > 50)) {
-            const error = new Error(
-                "La couleur doit contenir entre 3 et 50 caractères."
-            );
-            error.statusCode = 400;
-            throw error;
+        if (couleur) {
+            if (couleur.length < 3 || couleur.length > 50) {
+                const error = new Error(
+                    "La couleur doit contenir entre 3 et 50 caractères."
+                );
+                error.statusCode = 400;
+                throw error;
+            }
         }
-        if (plaque & (plaque.length !== 6)) {
-            const error = new Error("La plaque doit contenir 6 caractères.");
-            error.statusCode = 400;
-            throw error;
+        if (plaque) {
+            if (plaque.length !== 6) {
+                const error = new Error(
+                    "La plaque doit contenir 6 caractères."
+                );
+                error.statusCode = 400;
+                throw error;
+            }
         }
 
         if (!user.voiture) {
@@ -169,7 +179,7 @@ exports.updateCar = async (req, res, next) => {
                 voiture.isParked = false;
             }
             voiture.timeToLeave = timeToLeave || voiture.timeToLeave;
-            voiture.isMoving = isMoving ;
+            voiture.isMoving = isMoving;
             if (isMoving === false) {
                 voiture.isMoving = false;
             }
