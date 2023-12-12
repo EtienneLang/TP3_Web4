@@ -10,7 +10,7 @@ module.exports = [
         isMoving: false,
         latitude: 46.791027,
         longitude: -71.265445,
-        timeToLeave: 32400, // 9h00
+        timeToLeave: 36000, // 10h (parké à 9h)
     },
     {
         _id: "655b939c3173af5ac257f334",
@@ -36,7 +36,7 @@ module.exports = [
         isMoving: false,
         latitude: 46.792180,
         longitude: -71.266599,
-        timeToLeave: 42300, // 11h45
+        timeToLeave: 48600, // 13h30 (parké à 11h45)
     },
     {
         _id: "655b939c3173af5ac257f336",
@@ -49,7 +49,7 @@ module.exports = [
         isMoving: false,
         latitude: 46.792745,
         longitude: -71.262660,
-        timeToLeave: 59400, // 16h30
+        timeToLeave: 63000, // 17h30 (parké à 16h30)
     },
     {
         _id: "655b939c3173af5ac257f337",

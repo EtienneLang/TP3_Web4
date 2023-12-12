@@ -56,6 +56,6 @@ module.exports = [
         password:
             "$2a$12$gpXD2jPKiH4VieMJ1ycmlOl5MKXMfQ3a.KIJoHwypuSBQAuyxDuFm",
         isValet: true,
-        price: 5,
+        price: 500,
     },
 ];
