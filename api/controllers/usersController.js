@@ -174,12 +174,12 @@ exports.updateCar = async (req, res, next) => {
             voiture.plaque = plaque || voiture.plaque;
             voiture.latitude = latitude || voiture.latitude;
             voiture.longitude = longitude || voiture.longitude;
-            voiture.isParked = isParked || voiture.longitude;
+            voiture.isParked = isParked || voiture.isParked;
             if (isParked === false) {
                 voiture.isParked = false;
             }
             voiture.timeToLeave = timeToLeave || voiture.timeToLeave;
-            voiture.isMoving = isMoving || voiture.longitude;
+            voiture.isMoving = isMoving || voiture.isMoving;
             if (isMoving === false) {
                 voiture.isMoving = false;
             }
