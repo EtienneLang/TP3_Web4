@@ -115,28 +115,28 @@ exports.updateCar = async (req, res, next) => {
             isMoving,
         } = req.body;
 
-        if (marque.length < 1 || marque.length > 50) {
+        if (marque && (marque.length < 1 || marque.length > 50)) {
             const error = new Error(
                 "La marque doit contenir entre 1 et 50 caractères."
             );
             error.statusCode = 400;
             throw error;
         }
-        if (modele.length < 1 || modele.length > 50) {
+        if (modele && (modele.length < 1 || modele.length > 50)) {
             const error = new Error(
                 "Le modèle doit contenir entre 1 et 50 caractères."
             );
             error.statusCode = 400;
             throw error;
         }
-        if (couleur.length < 3 || couleur.length > 50) {
+        if (couleur && (couleur.length < 3 || couleur.length > 50)) {
             const error = new Error(
                 "La couleur doit contenir entre 3 et 50 caractères."
             );
             error.statusCode = 400;
             throw error;
         }
-        if (plaque.length !== 6) {
+        if (plaque & (plaque.length !== 6)) {
             const error = new Error("La plaque doit contenir 6 caractères.");
             error.statusCode = 400;
             throw error;
@@ -164,12 +164,12 @@ exports.updateCar = async (req, res, next) => {
             voiture.plaque = plaque || voiture.plaque;
             voiture.latitude = latitude || voiture.latitude;
             voiture.longitude = longitude || voiture.longitude;
-            voiture.isParked = isParked || voiture.isParked;
+            voiture.isParked = isParked;
             if (isParked === false) {
                 voiture.isParked = false;
             }
             voiture.timeToLeave = timeToLeave || voiture.timeToLeave;
-            voiture.isMoving = isMoving || voiture.isMoving;
+            voiture.isMoving = isMoving ;
             if (isMoving === false) {
                 voiture.isMoving = false;
             }
