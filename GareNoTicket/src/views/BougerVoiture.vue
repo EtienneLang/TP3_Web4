@@ -25,6 +25,7 @@
 </template>
 
 <script>
+// Import des bibliothèques nécessaires
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import Cookies from 'js-cookie'
@@ -41,6 +42,7 @@ export default {
 
     data() {
         return {
+            // Données pour la position sur la carte et l'état de l'utilisateur
             latlng: {
                 lat: 0,
                 lng: 0,
@@ -53,6 +55,7 @@ export default {
         }
     },
     async created() {
+        // Récupération de la position actuelle de l'utilisateur
         this.position = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject)
         })
@@ -60,11 +63,14 @@ export default {
         this.latlng.lng = this.position.coords.longitude
     },
     async mounted() {
+        // Récupération de l'ID de l'utilisateur depuis les paramètres de l'URL
         const userId = this.$route.params.userId
         const JWT = Cookies.get('token')
-        console.log(JWT)
+
+        // Vérification de l'existence du jeton JWT
         if (JWT) {
             try {
+                // Récupération des données de l'utilisateur connecté
                 const response = await axios.get(URL_API + '/user', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
@@ -72,18 +78,22 @@ export default {
                 })
                 this.loggeduser = response.data.user
             } catch (error) {
-                console.error('Error fetching user data:', error)
+                console.error('Erreur lors de la récupération des données utilisateur :', error)
             }
         }
+
         try {
+            // Récupération des données de l'utilisateur spécifié
             const response = await axios.get(URL_API + '/user/' + userId)
             const { user } = toRefs(response.data)
             this.user = user
-            console.log(this.user)
         } catch (error) {
-            console.error('Error fetching user data:', error)
+            console.error('Erreur lors de la récupération des données utilisateur :', error)
         }
+
         this.isMoving = this.user.voiture.isMoving
+
+        // Initialisation de la carte et des marqueurs
         await this.mapInit()
         await this.markerInit()
     },
@@ -93,12 +103,17 @@ export default {
          */
         async mapInit() {
             try {
+                // Récupération des coordonnées de la position actuelle de l'utilisateur
                 let latitude = this.position.coords.latitude
                 let longitude = this.position.coords.longitude
+
+                // Création de la carte Leaflet
                 this.map = L.map('map', { _zoomAnimation: false }).setView(
                     [latitude, longitude],
                     13,
                 )
+
+                // Ajout d'une couche de tuiles OpenStreetMap à la carte
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution:
@@ -108,12 +123,13 @@ export default {
                 console.error(error)
             }
         },
+
         /**
          * Initialise le marqueur du valet et de l'utilisateur
          */
         async markerInit() {
             try {
-                // On affiche la position du valet
+                // Affichage du marqueur de la position de l'utilisateur
                 var marker = L.marker([this.latlng.lat, this.latlng.lng], {
                     draggable: 'true',
                     icon: L.icon({
@@ -124,19 +140,22 @@ export default {
                     }),
                 }).addTo(this.map)
                 marker.bindPopup('<b>Votre position.</b>')
-                // marker.on({ dragend: this.onMarkerDragEnd })
-                this.map.panTo(marker.getLatLng())
-                var marker = L.marker([this.user.voiture.latitude, this.user.voiture.longitude], {
-                    draggable: 'true',
-                    icon: L.icon({
-                        iconUrl: carPin,
-                        iconSize: [41, 41],
-                        iconAnchor: [20.5, 41],
-                        popupAnchor: [1, -34],
-                    }),
-                }).addTo(this.map)
-                marker.bindPopup('<b>Voiture de ' + this.user.username + '</b>')
-                marker.on({ dragend: this.onMarkerDragEnd })
+
+                // Affichage du marqueur de la position de la voiture de l'utilisateur
+                var carMarker = L.marker(
+                    [this.user.voiture.latitude, this.user.voiture.longitude],
+                    {
+                        draggable: 'true',
+                        icon: L.icon({
+                            iconUrl: carPin,
+                            iconSize: [41, 41],
+                            iconAnchor: [20.5, 41],
+                            popupAnchor: [1, -34],
+                        }),
+                    },
+                ).addTo(this.map)
+                carMarker.bindPopup('<b>Voiture de ' + this.user.username + '</b>')
+                carMarker.on({ dragend: this.onMarkerDragEnd })
             } catch (error) {
                 console.error(error)
             }
@@ -158,17 +177,17 @@ export default {
          * @param {*} event
          */
         onMarkerDragEnd(event) {
-            console.log('onMarkerDragEnd')
+            console.log('Marqueur déplacé')
             this.latlng = event.target.getLatLng()
-            // Update marker coordinates when dragged
         },
 
         /**
-         * Fonction pour récuperer la voiture
+         * Fonction pour déplacer la voiture
          */
         async deplacerVoiture() {
             const JWT = Cookies.get('token')
             try {
+                // Appel à l'API pour déplacer la voiture et mise à jour de l'état local
                 const response = await axios.put(
                     URL_API + '/car/' + this.user._id,
                     {
@@ -191,14 +210,17 @@ export default {
                 console.error(error)
             }
         },
+
         /**
          * Fonction pour confirmer la position de la voiture
          */
         async ValiderDeplacement() {
             const JWT = Cookies.get('token')
             try {
+                // Détermination du temps restant avant le prochain déplacement
                 let tempsAQuitter = this.determinerTempsRestant()
-                //On envoie les données de la voiture à l'API
+
+                // Envoi des données de la voiture à l'API et ajout d'un historique
                 const response = await axios.put(
                     URL_API + '/car/' + this.user._id,
                     {
@@ -225,6 +247,8 @@ export default {
                         },
                     },
                 )
+
+                // Vérification des réponses des requêtes
                 if (response.status === 200 && response2.status === 201) {
                     useToast().success('Voiture déplacée avec succès')
                     this.isMoving = false
@@ -234,8 +258,12 @@ export default {
                 console.error(error)
             }
         },
+
+        /**
+         * Fonction pour déterminer le temps restant avant le prochain déplacement
+         */
         determinerTempsRestant() {
-            //Tout les constantes sont en secondes
+            // Toutes les constantes sont en secondes
             const onzeHeure = 11 * 3600
             const treizeHeureTrente = 13 * 3600 + 30 * 60
             const seizeHeure = 16 * 3600
@@ -247,36 +275,30 @@ export default {
                 maintenant.getMonth(),
                 maintenant.getDate(),
             )
-            //On récupère le nombre de secondes depuis le début du jour
+            // On récupère le nombre de secondes depuis le début du jour
             const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
 
-            //let tempsRestant = 0
-            let tempsAQuitte = 0
-            //Si on est entre 11h et 13h30h
+            let tempsAQuitter = 0
+            // Si on est entre 11h et 13h30h
             if (
                 secondesDepuisDebutJour >= onzeHeure &&
                 secondesDepuisDebutJour < treizeHeureTrente
             ) {
-                //tempsRestant = treizeHeureTrente - secondesDepuisDebutJour
-                tempsAQuitte = treizeHeureTrente
+                tempsAQuitter = treizeHeureTrente - secondesDepuisDebutJour
             }
-            //Si on est entre 16h et minuit
+            // Si on est entre 16h et minuit
             else if (secondesDepuisDebutJour >= seizeHeure && secondesDepuisDebutJour < minuit) {
-                //tempsRestant = 'demain'
-                tempsAQuitte = minuit + neufHeure + 3600
+                tempsAQuitter = minuit + neufHeure + 3600
             }
-            //Si on est entre minuit et 9h
+            // Si on est entre minuit et 9h
             else if (secondesDepuisDebutJour <= neufHeure && secondesDepuisDebutJour >= 0) {
-                //tempsRestant = (neufHeure + 3600) - secondesDepuisDebutJour
-
-                tempsAQuitte = neufHeure + 3600
+                tempsAQuitter = neufHeure + 3600
             }
-            //Si on est dans peut importe quel autre cas, on met 1h
+            // Si on est dans n'importe quel autre cas, on met 1h
             else {
-                //tempsRestant = 3600
-                tempsAQuitte = secondesDepuisDebutJour + 3600
+                tempsAQuitter = 3600
             }
-            return tempsAQuitte
+            return tempsAQuitter
         },
     },
 }

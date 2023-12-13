@@ -36,11 +36,11 @@
 </template>
 
 <script>
-import axios from 'axios'
-import L from 'leaflet'
-import carPin from '../../img/car.png'
-import {URL_API} from '../../../const'
-import imgCle from '../../img/cle.png'
+import axios from 'axios';
+import L from 'leaflet';
+import carPin from '../../img/car.png';
+import { URL_API } from '../../../const';
+import imgCle from '../../img/cle.png';
 
 export default {
     props: {
@@ -58,34 +58,44 @@ export default {
             usersRelatedToValet: [],
             intervalId: null,
             latlng: {},
-            imgCle: imgCle
-        }
+            imgCle: imgCle,
+        };
     },
     async mounted() {
-        this.intervalId = setInterval(this.decreaseTimeToLeave, 1000)
+        // Définition de l'intervalle pour mettre à jour le temps restant toutes les secondes
+        this.intervalId = setInterval(this.decreaseTimeToLeave, 1000);
+
         try {
-            const users = await axios.get(URL_API + '/users')
-            console.log(users.data.users)
-            //A changer pour aller chercher les donnée directement, mauvaise pratique de faire un for
+            // Récupération de la liste de tous les utilisateurs
+            const users = await axios.get(URL_API + '/users');
+
+            // Parcours de la liste des utilisateurs
             for (const user of users.data.users) {
+                // Vérification si l'utilisateur a le valet actuel
                 if (user.voiture.valet === this.user._id) {
                     this.latlng[user._id] = {
                         lat: user.voiture.latitude,
                         lng: user.voiture.longitude,
-                    }
-                    let maintenant = new Date()
+                    };
+
+                    // Calcul du temps restant avant le prochain déplacement
+                    let maintenant = new Date();
                     const debutDuJour = new Date(
                         maintenant.getFullYear(),
                         maintenant.getMonth(),
                         maintenant.getDate(),
-                    )
-                    const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
-                    // Si le temps restant est supérieur à 16h, on laisse le vrai temps restant pour pouvoir afficher Demain (A REVOIR)
+                    );
+                    const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000);
+
+                    // Si le temps restant est supérieur à 16h, ajuster pour afficher Demain
                     if (user.voiture.timeToLeave <= 57600) {
-                        user.voiture.timeToLeave =
-                            user.voiture.timeToLeave - secondesDepuisDebutJour
+                        user.voiture.timeToLeave = user.voiture.timeToLeave - secondesDepuisDebutJour;
                     }
-                    this.usersRelatedToValet.push(user)
+
+                    // Ajout de l'utilisateur à la liste des utilisateurs liés au valet
+                    this.usersRelatedToValet.push(user);
+
+                    // Création du marqueur sur la carte pour l'utilisateur lié au valet
                     var marker = L.marker([user.voiture.latitude, user.voiture.longitude], {
                         icon: L.icon({
                             iconUrl: carPin,
@@ -93,43 +103,49 @@ export default {
                             iconAnchor: [20.5, 41],
                             popupAnchor: [1, -34],
                         }),
-                    }).addTo(this.map)
+                    }).addTo(this.map);
+
+                    // Liaison du popup au marqueur avec des informations sur l'utilisateur
                     marker
                         .bindPopup(
                             '<b>' +
-                                user.username +
-                                '</b><br>' +
-                                user.voiture.marque +
-                                user.voiture.modele +
-                                '<br>' +
-                                user.voiture.couleur +
-                                '<br>' +
-                                user.voiture.plaque,
-                        )
-                    marker.id = user._id
+                            user.username +
+                            '</b><br>' +
+                            user.voiture.marque +
+                            user.voiture.modele +
+                            '<br>' +
+                            user.voiture.couleur +
+                            '<br>' +
+                            user.voiture.plaque,
+                        );
+
+                    marker.id = user._id;
                 }
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     },
     beforeDestroy() {
-        clearInterval(this.intervalId)
+        clearInterval(this.intervalId);
     },
     methods: {
         decreaseTimeToLeave() {
             this.usersRelatedToValet.forEach((user) => {
                 if (user.voiture.timeToLeave > 0) {
-                    user.voiture.timeToLeave = user.voiture.timeToLeave - 1
+                    user.voiture.timeToLeave = user.voiture.timeToLeave - 1;
                 }
-            })
+            });
         },
+
+        // Fonction pour centrer la carte sur la position de la voiture d'un utilisateur
         centerVehiculeMap(voiture) {
-            this.map.setView(new L.LatLng(voiture.latitude, voiture.longitude), 17)    
+            this.map.setView(new L.LatLng(voiture.latitude, voiture.longitude), 17);
         },
     },
-}
+};
 </script>
+
 
 <style>
 .img-tab {

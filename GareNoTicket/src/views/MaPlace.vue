@@ -58,16 +58,11 @@
 </template>
 
 <script>
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import { toRefs } from 'vue'
-import redPin from '../img/pin.png'
-import carPin from '../img/car.png'
-import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
 import { URL_API } from '../../const'
-import { useToast } from 'vue-toastification'
+import L from 'leaflet'
 
 export default {
     components: { TableauVoituresValet },
@@ -87,7 +82,7 @@ export default {
         }
     },
     async created() {
-        //On récupère la position de l'utilisateur
+        // On récupère la position de l'utilisateur
         this.position = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject)
         })
@@ -151,7 +146,7 @@ export default {
          */
         async markerInit() {
             try {
-                //Si l'utilisateur est stationné et n'est pas un valet, on affiche sa voiture et non sa position actuelle
+                // Si l'utilisateur est stationné et n'est pas un valet, on affiche sa voiture et non sa position actuelle
                 if (!this.user.isValet && this.isParked) {
                     this.latlng.lat = this.user.voiture.latitude
                     this.latlng.lng = this.user.voiture.longitude
@@ -166,12 +161,12 @@ export default {
                     marker.bindPopup('<b>Votre voiture</b>')
                     this.map.panTo(marker.getLatLng())
                 }
-                // Sinon on affiche la position de l'utilisateur
+                // Sinon, on affiche la position de l'utilisateur
                 else {
                     var marker = L.marker([this.latlng.lat, this.latlng.lng], {
                         draggable: 'true',
                         icon: L.icon({
-                            iconUrl: redPin,
+                            iconUrl: redPin,  
                             iconSize: [41, 41],
                             iconAnchor: [20.5, 41],
                             popupAnchor: [1, -34],
@@ -222,20 +217,20 @@ export default {
             this.confirmationPopUp = true
         },
         /**
-         * Fonction pour faire disparaitre le popup de confirmation
+         * Fonction pour faire disparaître le popup de confirmation
          */
         AnnulerConfirmation() {
             console.log('AnnulerConfirmation')
             this.confirmationPopUp = false
         },
         /**
-         * Fonction pour récuperer la voiture
+         * Fonction pour récupérer la voiture
          */
         async recupereVoiture() {
             const JWT = Cookies.get('token')
             console.log('recupereVoiture', this.user._id)
             try {
-                //On envoie les données de la voiture à l'API
+                // On envoie les données de la voiture à l'API
                 const response = await axios.put(
                     URL_API + '/car/' + this.user._id,
                     {
@@ -269,7 +264,7 @@ export default {
             try {
                 let tempsAQuitter = this.determinerTempsRestant()
                 console.log(tempsAQuitter)
-                //On envoie les données de la voiture à l'API
+                // On envoie les données de la voiture à l'API
                 const response = await axios.put(
                     URL_API + '/car/' + userId,
                     {
@@ -289,7 +284,7 @@ export default {
                     this.clearMap()
                     var marker = L.marker([this.latlng.lat, this.latlng.lng], {
                         icon: L.icon({
-                            iconUrl: carPin,
+                            iconUrl: carPin,  
                             iconSize: [41, 41],
                             iconAnchor: [20.5, 41],
                             popupAnchor: [1, -34],
@@ -297,7 +292,7 @@ export default {
                     }).addTo(this.map)
                     marker.bindPopup('<b>Votre voiture</b>')
                     this.map.panTo(marker.getLatLng())
-                    useToast().success('Votre voiture à bien été stationnée')
+                    useToast().success('Votre voiture a bien été stationnée')
                 }
             } catch (error) {
                 console.error(error)
@@ -305,7 +300,7 @@ export default {
             }
         },
         determinerTempsRestant() {
-            //Tout les constantes sont en secondes
+            // Toutes les constantes sont en secondes
             const onzeHeure = 11 * 3600
             const treizeHeureTrente = 13 * 3600 + 30 * 60
             const seizeHeure = 16 * 3600
@@ -317,36 +312,30 @@ export default {
                 maintenant.getMonth(),
                 maintenant.getDate(),
             )
-            //On récupère le nombre de secondes depuis le début du jour
+            // On récupère le nombre de secondes depuis le début du jour
             const secondesDepuisDebutJour = Math.floor((maintenant - debutDuJour) / 1000)
 
-            //let tempsRestant = 0
-            let tempsAQuitte = 0
-            //Si on est entre 11h et 13h30h
+            let tempsAQuitter = 0
+            // Si on est entre 11h et 13h30h
             if (
                 secondesDepuisDebutJour >= onzeHeure &&
                 secondesDepuisDebutJour < treizeHeureTrente
             ) {
-                //tempsRestant = treizeHeureTrente - secondesDepuisDebutJour
-                tempsAQuitte = treizeHeureTrente
+                tempsAQuitter = treizeHeureTrente - secondesDepuisDebutJour
             }
-            //Si on est entre 16h et minuit
+            // Si on est entre 16h et minuit
             else if (secondesDepuisDebutJour >= seizeHeure && secondesDepuisDebutJour < minuit) {
-                //tempsRestant = 'demain'
-                tempsAQuitte = minuit + neufHeure + 3600
+                tempsAQuitter = minuit + neufHeure + 3600
             }
-            //Si on est entre minuit et 9h
+            // Si on est entre minuit et 9h
             else if (secondesDepuisDebutJour <= neufHeure && secondesDepuisDebutJour >= 0) {
-                //tempsRestant = (neufHeure + 3600) - secondesDepuisDebutJour
-
-                tempsAQuitte = neufHeure + 3600
+                tempsAQuitter = neufHeure + 3600
             }
-            //Si on est dans peut importe quel autre cas, on met 1h
+            // Si on est dans n'importe quel autre cas, on met 1h
             else {
-                //tempsRestant = 3600
-                tempsAQuitte = secondesDepuisDebutJour + 3600
+                tempsAQuitter = 3600
             }
-            return tempsAQuitte
+            return tempsAQuitter
         },
         centerVehiculeMap() {
             this.map.setView(new L.LatLng(this.latlng.lat, this.latlng.lng), 17)
@@ -354,6 +343,7 @@ export default {
     },
 }
 </script>
+
 
 <style>
 #map {

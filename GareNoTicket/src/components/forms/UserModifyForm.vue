@@ -72,6 +72,7 @@ export default {
         this.user.price = this.user.price/100;
     },
     methods: {
+        // Validation de l'email
         validerEmail() {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(this.user.email)) {
@@ -81,6 +82,7 @@ export default {
                 this.errors.email = null;
             }
         },
+        // Validation du nom
         validerUsername() {
             if (this.user.username.length < 3) {
                 this.errors.username = "Le nom doit contenir au plus 3 caractères";
@@ -92,6 +94,7 @@ export default {
                 this.errors.username = null;
             }
         },
+        // Validation du tarif
         validerTarif() {
             if (this.user.price < 0) {
                 this.errors.tarif = "Le tarif doit être positif";
@@ -103,6 +106,7 @@ export default {
         async submitForm() {
             const JWT = Cookies.get("token");
             try {
+                // Appel à l'API pour modifier l'utilisateur
                 const response = await axios.put(URL_API+"/user/" + this.user._id, {
                     username: this.user.username,
                     email: this.user.email,

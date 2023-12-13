@@ -35,22 +35,26 @@ export default {
         }
     },
     async mounted() {
-        const JWT = Cookies.get('token')
-        if (JWT) {
-            try {
-                const response = await axios.get(URL_API + '/facture', {
-                    headers: {
-                        Authorization: `Bearer ${JWT}`,
-                    },
-                })
-                const facture  = response.data.facture
-                this.facture = facture
-                console.log('Historique data:', this.facture)
-            } catch (error) {
-                console.error('Error fetching historique data:', error)
-            }
+    const JWT = Cookies.get('token');
+
+    if (JWT) {
+        try {
+            // Requête pour récupérer les données de facture
+            const response = await axios.get(URL_API + '/facture', {
+                headers: {
+                    Authorization: `Bearer ${JWT}`, 
+                },
+            });
+            const facture = response.data.facture;
+
+            this.facture = facture;
+
+        } catch (error) {
+            console.error('Error fetching historique data:', error);
         }
-    },
+    }
+},
+
 }
 </script>
 

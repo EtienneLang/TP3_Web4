@@ -18,9 +18,10 @@
                     </p>
                 </div>
             </div>
+            
             <div>
                 <router-link class="button" to="/profil/user_modify"
-                    >Modifier les informations de mon comptes</router-link
+                    >Modifier les informations de mon compte</router-link
                 >
                 <router-link v-if="!this.user.isValet" class="button" to="/profil/car_modify"
                     >Modifier les informations de ma voiture</router-link
@@ -28,6 +29,7 @@
                 
                 <div class="button-danger" @click="deleteUser">Supprimer mon compte</div>
             </div>
+            
             <RouterView :user="user" />
         </div>
     </div>
@@ -37,7 +39,7 @@
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import { toRefs } from 'vue'
-import {URL_API} from '../../const'
+import { URL_API } from '../../const'
 
 export default {
     data() {
@@ -49,6 +51,7 @@ export default {
         const JWT = Cookies.get('token')
         if (JWT) {
             try {
+                // Récupération des données utilisateur depuis l'API
                 const response = await axios.get(URL_API + '/user', {
                     headers: {
                         Authorization: `Bearer ${JWT}`,
@@ -56,26 +59,29 @@ export default {
                 })
                 const { user } = toRefs(response.data)
                 this.user = user
-                console.log('User data:', response)
+                console.log('Données utilisateur:', response)
             } catch (error) {
-                console.error('Error fetching user data:', error)
+                console.error('Erreur lors de la récupération des données utilisateur :', error)
             }
         }
     },
     methods: {
+        // Méthode pour supprimer le compte utilisateur
         async deleteUser() {
             const JWT = Cookies.get('token')
-            const confirmed = confirm('Are you sure you want to delete your account?')
+            const confirmed = confirm('Êtes-vous sûr de vouloir supprimer votre compte ?')
             if (confirmed) {
                 try {
+                    // Appel à l'API pour supprimer le compte
                     const response = await axios.delete(URL_API + '/user/', {
                         headers: {
                             Authorization: `Bearer ${JWT}`,
                         },
                     })
                     if (response.status === 204) {
-                        console.log('User deleted')
+                        // Suppression du cookie de token
                         Cookies.remove('token')
+                        // Redirection vers la page d'accueil
                         this.$router.push('/')
                     }
                 } catch (error) {
@@ -118,5 +124,4 @@ export default {
 .button-danger:hover {
     background-color: #c82333;
 }
-
 </style>

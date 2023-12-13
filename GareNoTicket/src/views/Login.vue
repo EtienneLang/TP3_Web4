@@ -39,39 +39,44 @@
 <script>
 import Cookies from 'js-cookie'
 import axios from 'axios'
-import {URL_API} from '../../const'
+import { URL_API } from '../../const'
 
 export default {
-    data() {
-        return {
-            email: '',
-            password: '',
-            messageErreur: '',
+  data() {
+    return {
+      email: '',
+      password: '',
+      messageErreur: '',
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        // Envoi de la requête de connexion au serveur
+        const response = await axios.post(URL_API + '/auth/login', {
+          email: this.email,
+          password: this.password,
+        });
+
+        // Si la connexion est réussie, enregistrez le jeton dans les cookies
+        if (response.status === 200) {
+          Cookies.set('token', response.data.token, { expires: 1 });
+          // Redirigez l'utilisateur vers la page '/maplace'
+          this.$router.push('/maplace');
         }
+      } catch (error) {
+        // En cas d'erreur lors de la requête
+        console.log(error);
+        if (error.response.status === 401) {
+          // Si le serveur renvoie un statut 401, affichez le message d'erreur
+          console.log(error.response);
+          this.messageErreur = error.response.data.message;
+        } else {
+          // Gestion des autres erreurs
+          console.error(error);
+        }
+      }
     },
-    methods: {
-        async login() {
-            try {
-                const response = await axios.post(URL_API + '/auth/login', {
-                    email: this.email,
-                    password: this.password,
-                })
-                if (response.status === 200) {
-                    Cookies.set('token', response.data.token, { expires: 1 })
-                    this.$router.push('/maplace')
-                }
-                
-            } catch (error) {
-                console.log(error)
-                if (error.response.status === 401) {
-                    console.log(error.response)
-                    this.messageErreur = error.response.data.message
-                }
-                else {
-                    console.error(error)
-                }
-            }
-        },
-    },
-}
+  },
+};
 </script>

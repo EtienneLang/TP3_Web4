@@ -159,7 +159,6 @@ export default {
                 if (response.status === 200) {
                     console.log('User modified')
                     useToast().success('Voiture modifiée')
-                    //Cookies.set('token', response.data.token, { expires: 1 })
                 }
             } catch (error) {
                 console.error(error)

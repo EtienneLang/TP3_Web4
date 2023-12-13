@@ -3,11 +3,11 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">Create Account</div>
+                    <div class="card-header">Créer un compte</div>
                     <div class="card-body">
                         <form @submit.prevent="register" method="post">
                             <div class="mb-3">
-                                <label for="username" class="form-label">Nom d'utilisateur:</label>
+                                <label for="username" class="form-label">Nom d'utilisateur :</label>
                                 <input
                                     v-model.trim="username"
                                     type="text"
@@ -17,10 +17,10 @@
                                     @blur="validerUsername"
                                 />
                                 <div v-if="error.username" class="text-danger">{{ error.username }}</div>
-
                             </div>
+
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
+                                <label for="email" class="form-label">Email :</label>
                                 <input
                                     v-model.trim="email"
                                     type="email"
@@ -30,10 +30,10 @@
                                     @blur="validerEmail"
                                 />
                                 <div v-if="error.email" class="text-danger">{{ error.email }}</div>
-
                             </div>
+
                             <div class="mb-3">
-                                <label for="password" class="form-label">Mot de passe:</label>
+                                <label for="password" class="form-label">Mot de passe :</label>
                                 <input
                                     v-model.trim="password"
                                     type="password"
@@ -44,9 +44,9 @@
                                 />
                                 <div v-if="error.password" class="text-danger">{{ error.password }}</div>
                             </div>
+
                             <div class="mb-3">
-                                <label for="confirmPassword" class="form-label"
-                                    >Confirmation mot de passe:</label>
+                                <label for="confirmPassword" class="form-label">Confirmation mot de passe :</label>
                                 <input
                                     v-model.trim="confirmPassword"
                                     type="password"
@@ -56,8 +56,8 @@
                                     @blur="validerConfirmPassword"
                                 />
                                 <div v-if="error.confirmPassword" class="text-danger">{{ error.confirmPassword }}</div>
-
                             </div>
+
                             <button
                                 :disabled="
                                     error.username ||
@@ -68,7 +68,7 @@
                                 type="submit"
                                 class="btn btn-primary"
                             >
-                                Create Account
+                                Créer un compte
                             </button>
                         </form>
                     </div>
@@ -79,9 +79,8 @@
 </template>
 
 <script>
-import Cookies from 'js-cookie'
 import axios from 'axios'
-import {URL_API} from '../../const'
+import { URL_API } from '../../const'
 
 export default {
     data() {
@@ -99,6 +98,7 @@ export default {
         }
     },
     methods: {
+        // Validation de l'email
         validerEmail() {
             const regEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
             if (!regEx.test(this.email)) {
@@ -109,6 +109,8 @@ export default {
                 this.error.email = null
             }
         },
+
+        // Validation du nom d'utilisateur
         validerUsername() {
             if (this.username.length === 0) {
                 this.error.username = "Le nom d'utilisateur est requis"
@@ -120,6 +122,8 @@ export default {
                 this.error.username = null
             }
         },
+
+        // Validation du mot de passe
         validerPassword() {
             if (this.password.length < 6) {
                 this.error.password = 'Le mot de passe doit contenir au moins 6 caractères'
@@ -129,6 +133,8 @@ export default {
                 this.error.password = null
             }
         },
+
+        // Validation de la confirmation du mot de passe
         validerConfirmPassword() {
             if (this.confirmPassword !== this.password) {
                 this.error.confirmPassword = 'Les mots de passe ne correspondent pas'
@@ -138,8 +144,10 @@ export default {
                 this.error.confirmPassword = null
             }
         },
+
+        // Méthode pour effectuer l'inscription
         async register() {
-            //Si tout est bon, on envoie les données au serveur
+            // Si toutes les validations sont passées, envoi des données au serveur
             if (
                 !this.error.email ||
                 !this.error.username ||
@@ -147,6 +155,7 @@ export default {
                 !this.error.confirmPassword
             ) {
                 try {
+                    // Appel à l'API pour l'inscription
                     const response = await axios.post(URL_API + '/auth/signup', {
                         username: this.username,
                         email: this.email,
@@ -154,12 +163,12 @@ export default {
                         confirmPassword: this.confirmPassword,
                     })
 
+                    // Redirection vers la page de connexion en cas de succès
                     if (response.status === 200) {
-                        // Successful login, handle the response as needed
                         this.$router.push('/login')
                     }
                 } catch (error) {
-                    console.error('An error occurred during login:', error)
+                    console.error('Une erreur est survenue lors de l\'inscription :', error)
                 }
             }
         },
@@ -168,5 +177,5 @@ export default {
 </script>
 
 <style scoped>
-/* Add your component-specific styles here */
+/* Ajoutez vos styles spécifiques au composant ici */
 </style>
