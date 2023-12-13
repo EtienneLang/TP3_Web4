@@ -122,7 +122,6 @@ export default {
                 }
             }
             catch (error) {
-                console.error(error);
                 useToast().error("Erreur lors de la modification de l'utilisateur");
             }
         },

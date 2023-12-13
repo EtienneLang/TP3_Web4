@@ -115,7 +115,7 @@ exports.updateCar = async (req, res, next) => {
             isMoving,
         } = req.body;
 
-        if (marque) {
+        if (marque || marque === "") {
             if (marque.length < 1 || marque.length > 50) {
                 const error = new Error(
                     "La marque doit contenir entre 1 et 50 caractères."
@@ -124,7 +124,7 @@ exports.updateCar = async (req, res, next) => {
                 throw error;
             }
         }
-        if (modele) {
+        if (modele || modele === "") {
             if (modele.length < 1 || modele.length > 50) {
                 const error = new Error(
                     "Le modèle doit contenir entre 1 et 50 caractères."
@@ -133,7 +133,7 @@ exports.updateCar = async (req, res, next) => {
                 throw error;
             }
         }
-        if (couleur) {
+        if (couleur || couleur === "") {
             if (couleur.length < 3 || couleur.length > 50) {
                 const error = new Error(
                     "La couleur doit contenir entre 3 et 50 caractères."
