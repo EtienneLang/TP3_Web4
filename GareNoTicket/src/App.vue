@@ -28,12 +28,12 @@ import { RouterLink, RouterView } from 'vue-router'
                             </li>
                             <li class="nav-item">
                                 <RouterLink v-if="!isLoggedIn" class="nav-link" to="/login"
-                                    >Login</RouterLink
+                                    >Se connecter</RouterLink
                                 >
                             </li>
                             <li class="nav-item">
                                 <RouterLink v-if="!isLoggedIn" class="nav-link" to="/signup"
-                                    >Sign Up</RouterLink
+                                    >Crée un compte</RouterLink
                                 >
                             </li>
                             <li class="nav-item">
@@ -55,7 +55,7 @@ import { RouterLink, RouterView } from 'vue-router'
                                 >
                             </li>
                             <li class="nav-item">
-                                <a v-if="isLoggedIn" class="nav-link" @click="logout">Logout</a>
+                                <a v-if="isLoggedIn" class="nav-link" @click="logout">Se déconnecter</a>
                             </li>
                         </ul>
                     </div>

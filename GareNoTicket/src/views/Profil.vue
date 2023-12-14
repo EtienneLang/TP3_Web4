@@ -59,6 +59,7 @@ export default {
                 })
                 const { user } = toRefs(response.data)
                 this.user = user
+                this.user.price = this.user.price / 100
                 console.log('Données utilisateur:', response)
             } catch (error) {
                 console.error('Erreur lors de la récupération des données utilisateur :', error)

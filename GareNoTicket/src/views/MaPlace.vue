@@ -58,11 +58,18 @@
 </template>
 
 <script>
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import { toRefs } from 'vue'
+import redPin from '../img/pin.png'
+import carPin from '../img/car.png'
+import TableauVoituresValet from '../components/tableaux/tableauVoituresValet.vue'
 import { URL_API } from '../../const'
-import L from 'leaflet'
+import { useToast } from 'vue-toastification'
+
+
 
 export default {
     components: { TableauVoituresValet },
@@ -321,7 +328,7 @@ export default {
                 secondesDepuisDebutJour >= onzeHeure &&
                 secondesDepuisDebutJour < treizeHeureTrente
             ) {
-                tempsAQuitter = treizeHeureTrente - secondesDepuisDebutJour
+                tempsAQuitter = treizeHeureTrente
             }
             // Si on est entre 16h et minuit
             else if (secondesDepuisDebutJour >= seizeHeure && secondesDepuisDebutJour < minuit) {
@@ -333,7 +340,7 @@ export default {
             }
             // Si on est dans n'importe quel autre cas, on met 1h
             else {
-                tempsAQuitter = 3600
+                tempsAQuitter = secondesDepuisDebutJour + 3600
             }
             return tempsAQuitter
         },

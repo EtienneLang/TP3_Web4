@@ -67,10 +67,6 @@ export default {
             },
         };
     },
-    created() {
-        // Pour afficher le prix en dollars et non en cents
-        this.user.price = this.user.price/100;
-    },
     methods: {
         // Validation de l'email
         validerEmail() {

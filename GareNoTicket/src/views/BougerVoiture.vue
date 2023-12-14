@@ -33,13 +33,10 @@ import axios from 'axios'
 import { toRefs } from 'vue'
 import redPin from '../img/pin.png'
 import carPin from '../img/car.png'
-import Alert from '../components/alert.vue'
 import { URL_API } from '../../const'
 import { useToast } from 'vue-toastification'
 
 export default {
-    components: { Alert },
-
     data() {
         return {
             // Données pour la position sur la carte et l'état de l'utilisateur
@@ -219,7 +216,7 @@ export default {
             try {
                 // Détermination du temps restant avant le prochain déplacement
                 let tempsAQuitter = this.determinerTempsRestant()
-
+                console.log('Temps restant avant le prochain déplacement :', tempsAQuitter)
                 // Envoi des données de la voiture à l'API et ajout d'un historique
                 const response = await axios.put(
                     URL_API + '/car/' + this.user._id,
@@ -284,7 +281,7 @@ export default {
                 secondesDepuisDebutJour >= onzeHeure &&
                 secondesDepuisDebutJour < treizeHeureTrente
             ) {
-                tempsAQuitter = treizeHeureTrente - secondesDepuisDebutJour
+                tempsAQuitter = treizeHeureTrente
             }
             // Si on est entre 16h et minuit
             else if (secondesDepuisDebutJour >= seizeHeure && secondesDepuisDebutJour < minuit) {
@@ -296,7 +293,7 @@ export default {
             }
             // Si on est dans n'importe quel autre cas, on met 1h
             else {
-                tempsAQuitter = 3600
+                tempsAQuitter = secondesDepuisDebutJour + 3600
             }
             return tempsAQuitter
         },

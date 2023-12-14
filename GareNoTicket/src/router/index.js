@@ -16,37 +16,37 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
-            component: HomeView,
+            component: () => import('../views/Home.vue'),
         },
         {
             path: '/login',
             name: 'login',
-            component: LoginView,
+            component: () => import('../views/Login.vue'),
         },
         {
             path: '/signup',
             name: 'signup',
-            component: SignUpView,
+            component: () => import('../views/SignUp.vue'),
         },
         {
             path: '/profil',
             name: 'profil',
-            component: ProfilView,
+            component: () => import('../views/Profil.vue'),
             children: [
                 {
                     path: 'user_modify',
-                    component: UserModifyView,
+                    component: () => import('../components/forms/UserModifyForm.vue'),
                 },
                 {
                     path: 'car_modify',
-                    component: CarModifyView,
+                    component: () => import('../components/forms/CarModifyForm.vue'),
                 },
             ],
         },
         {
             path: '/maplace',
             name: 'maplace',
-            component: MaplaceView,
+            component: () => import('../views/MaPlace.vue'),
         },
         {
             path: '/bougerVoiture/:userId',
@@ -60,7 +60,7 @@ const router = createRouter({
         },
         {
             path: '/:notFound(.*)',
-            component: NotFound,
+            component: () => import('../views/NotFound.vue'),
         },
     ],
 })
@@ -70,29 +70,21 @@ router.beforeEach(async (to, from, next) => {
     const authRequired = !publicPages.includes(to.path)
 
     const token = Cookies.get('token')
-
-    console.log('token', token)
-
     if (authRequired && !token) {
         return next('/login')
     }
 
     if (authRequired) {
-        // Verify the JWT
         try {
             const decoded = jwtDecode(token)
             console.log(decoded)
-            // Check the expiration date
             if (decoded.exp * 1000 < Date.now()) {
                 // Token expired
                 Cookies.remove('token')
                 return next('/login')
             }
-
-            // Token is valid
             next()
         } catch (error) {
-            // Token is invalid
             return next('/login')
         }
     } else {
